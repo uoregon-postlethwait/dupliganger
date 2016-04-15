@@ -1,0 +1,14 @@
+# Stuff we should ignore in the final project
+
+# Stuff we may never need
+docs.orig
+
+# Compiled python modules
+*.pyc
+
+# Ignore package build
+/build/
+/dist/
+
+# Python egg metadata
+/*.egg-info
