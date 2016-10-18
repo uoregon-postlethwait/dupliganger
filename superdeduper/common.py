@@ -14,6 +14,14 @@
 from __future__ import absolute_import
 from __future__ import division
 
+# SuperDeDuper imports
+try:
+    from superdeduper.constants import *
+except ImportError:
+    from constants import *
+
+# Other imports
+
 import sys
 
 # For progress and timing
@@ -22,6 +30,21 @@ import time
 # For logging
 import logging
 
+# For pgopen, gzwrite, pigzopen
+import contextlib
+import os
+import subprocess
+import shlex
+
+# For tmpfile names
+import string
+import random
+
+# # For shell-like "which()"
+try:
+    from shutil import which
+except ImportError:
+    from whichcraft import which
 
 ##################
 ### Exceptions ###
@@ -36,9 +59,13 @@ class ControlFlowException(Exception):
 class CannotContinueException(Exception):
     """SuperDeDuper has encountered a situation from which it cannot continue."""
 class PrerequisitesException(Exception):
-    """SuperDeDuper is missing prerequisites (e.g. an out of date BBMap version)."""
-class ArgumentTypeException(Exception):
-    """Passed in the incorrect type of argument."""
+    """SuperDeDuper is missing prerequisites (e.g. missing gsnap)."""
+class ArgumentException(Exception):
+    """Problem with command line arguments."""
+class ParseException(Exception):
+    """Something went wrong with parsing something."""
+class HardClippingNotSupportedException(Exception):
+    """Encountered sam file hard-clipping, which is not supported."""
 
 
 #################
@@ -90,7 +117,6 @@ def fmt_time(seconds):
         return "{0:.1f}s (or {1}m{2}s)".format(seconds, m, s)
     else:
         return "{0:.1f}s".format(seconds)
-
 
 def setup_logging(conf, time_start):
     """Setup superdeduper.log logging.
@@ -145,6 +171,306 @@ def setup_logging(conf, time_start):
     header = "=== SuperDeDuper Execution ==="
     logging.info("{:^79}".format(header))
     logging.info("")
+
+
+@contextlib.contextmanager
+def pgopen(num_threads, filename):
+    """Context manager to open a plain or gzipped file for reading only.
+
+    Read-only.  If num_threads > 1 and pigz is installed, it will use pigz to
+    uncompress.
+
+    Usage:
+        with pgopen(file) as f:
+            # do stuff...
+    """
+    gzipped = False
+    with open(filename, 'r') as f:
+        # Is this a gzipped file? Check magic number.
+        magic_num = f.read(2)
+        f.seek(0)
+
+        if magic_num == '\x1f\x8b':
+            gzipped = True
+        else:
+            # This is not a gzipped file.
+            yield f
+    if gzipped:
+        # This is a gzipped file.
+        if num_threads > 1 and which('pigz'):
+            # pigz read
+            cmd = shlex.split('unpigz -p {} -c {}'.format(num_threads, filename))
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
+                yield f
+        else:
+            # gzip read
+            cmd = shlex.split('gunzip -c {}'.format(filename))
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
+                yield f
+
+@contextlib.contextmanager
+def gzwrite(filename):
+    """Context manager to write to a gzipped file.
+
+    Usage:
+        with gzwrite(file) as f:
+            # do stuff...
+    """
+    with open(filename, 'wb') as f:
+        cmd = shlex.split('gzip -c')
+        z = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=f)
+        try:
+            yield z.stdin
+        finally:
+            z.stdin.close()
+            z.wait()
+
+@contextlib.contextmanager
+def pigzwrite(num_threads, filename):
+    """Context manager to write to a gzipped file with pigz.
+
+    Usage:
+        with gzwrite(num_threads, file) as f:
+            # do stuff...
+    """
+    with open(filename, 'wb') as f:
+        cmd = shlex.split('pigz -p {}'.format(num_threads))
+        z = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=f)
+        try:
+            yield z.stdin
+        finally:
+            z.stdin.close()
+            z.wait()
+
+def file_root(filename, expected_ext=None):
+    """Given a filename, returns the root name to be used for new files.
+
+    If the file is gzipped, strips that away first.
+
+    Arguments:
+        filename (str): The filename to work on.
+        expected_ext ([str]): An array of expected filename extensions.  Will
+            raise exception if doesn't match.
+
+    >>> file_root('filename.fq')
+    ('', 'filename', '.fq')
+    >>> file_root('filename.fq.gz')
+    ('', 'filename', '.fq.gz')
+    >>> file_root('/path/to/filename.fq')
+    ('/path/to', 'filename', '.fq')
+    >>> file_root('filename.fq.gz', ['fq', 'fastq'])
+    ('', 'filename', '.fq.gz')
+    >>> file_root('filename.log', ['fq', 'fastq'])
+    Traceback (most recent call last):
+        ...
+    CannotContinueException: Extension log was in not expected extensions ['fq', 'fastq']
+    """
+
+    dirname, basename = os.path.split(os.path.expanduser(filename))
+    root, ext = os.path.splitext(basename)
+    orig_ext = ext
+    if ext in ('.gz', ):
+        root, ext = os.path.splitext(root)
+        orig_ext = ext + orig_ext
+    ext = ext[1:]
+
+    if expected_ext:
+        if ext not in expected_ext:
+            raise CannotContinueException(
+                    "Extension {} was in not expected extensions {}".format(
+                        ext, expected_ext))
+
+    return (dirname, root, orig_ext)
+
+def pe_file_root(pe_filename):
+    """Given a paired-end filename, returns the root name to be used for new files.
+
+    Will raise an exception if passed an R1 filename (why? so we don't
+    accidentally use this function for single-end reads).
+
+    If the file is gzipped, strips that away first.
+
+    Arguments:
+        pe_filename (str): The R2 paired end filename.
+
+    Returns:
+        (str, str, str): A 3-tuple: (the path, the pe_file_root, the original
+                extension)
+
+    >>> pe_file_root('/path/to/filename_R2.fq')
+    ('/path/to', 'filename', '.fq')
+    >>> pe_file_root('/path/to/filename_R2.fq.gz')
+    ('/path/to', 'filename', '.fq.gz')
+    >>> pe_file_root('/path/to/filename_R2_other_stuff.fq.gz')
+    ('/path/to', 'filename_other_stuff', '.fq.gz')
+
+    """
+    dirname, root, orig_ext = file_root(pe_filename, ['fq', 'fastq'])
+
+    if '_R1' in root or '_R2' not in root:
+        raise CannotContinueException(
+                 "pe_file_root should only be called with the R2 file.")
+
+    if 'R2' in root.replace('R2', ''):
+        m = "'R2' occurs more than once in {}, please change filename".format(
+                 pe_filename)
+        raise CannotContinueException(m)
+
+    root = root.replace('_R2', '')
+    return (dirname, root, orig_ext)
+
+def se_log_filename(prefix, se_filename, suffix='out'):
+    """Given a single-end (R1) filename, returns an appropriate log filename to
+    be used for logging output of external tools.
+
+    >>> se_log_filename('rmadapt', 'filename_R1.fq')
+    'exec.rmadapt.filename_R1.out'
+    >>> se_log_filename('rmadapt', 'filename_R1.fq.gz')
+    'exec.rmadapt.filename_R1.out'
+    >>> se_log_filename('rmadapt', 'filename_R1_other_stuff.fq.gz')
+    'exec.rmadapt.filename_R1_other_stuff.out'
+    >>> se_log_filename('rmadapt', '/path/to/filename_R1.fq')
+    '/path/to/exec.rmadapt.filename_R1.out'
+
+    """
+    dirname, root, junk = file_root(se_filename, ['fq', 'fastq'])
+    if not dirname or dirname == '.':
+        return "exec.{}.{}.{}".format(prefix, root, suffix)
+    else:
+        return "{}/exec.{}.{}.{}".format(dirname, prefix, root, suffix)
+
+def pe_log_filename(prefix, pe_filename, suffix='out'):
+    """Given a paired-end (R2) filename, returns an appropriate log filename to
+    be used for logging output of external tools.
+
+    >>> pe_log_filename('rmadapt', 'filename_R2.fq')
+    'exec.rmadapt.filename.out'
+    >>> pe_log_filename('rmadapt', 'filename_R2.fq.gz')
+    'exec.rmadapt.filename.out'
+    >>> pe_log_filename('rmadapt', 'filename_R2_other_stuff.fq.gz')
+    'exec.rmadapt.filename_other_stuff.out'
+    >>> pe_log_filename('rmadapt', '/path/to/filename_R2.fq')
+    '/path/to/exec.rmadapt.filename.out'
+
+    """
+    dirname, root, ext = pe_file_root(pe_filename)
+    if not dirname or dirname == '.':
+        return "exec.{}.{}.{}".format(prefix, root, suffix)
+    else:
+        return "{}/exec.{}.{}.{}".format(dirname, prefix, root, suffix)
+
+def filename_in_to_out_fqgz(filename, suffix, gzip, outdir):
+    """Converts a FASTQ filename to new filename with suffix, optionally gzipped.
+
+    Examples:
+        filename_in_to_out_fqgz('/path/to/file.fq.gz', 'stage1')
+            -> ./file.stage1.fq.gz
+        filename_in_to_out_fqgz('/path/to/file.fq.gz', 'stage1', False)
+            -> ./file.stage1.fq
+        filename_in_to_out_fqgz('/path/to/file.fq', 'stage1')
+            -> ./file.stage1.fq.gz
+        filename_in_to_out_fqgz('/path/to/file.fq.gz', 'stage1', True, 'outdir')
+            -> outdir/file.stage1.fq.gz
+
+    Args:
+        filename (str): Name of file to transform.
+        suffix (str): Suffix to add to filename.
+        gzip (bool): Whether or not to add a "gz" on the end.
+        outdir (Optional[str]): Directy to place filename in.
+
+    Returns:
+        str: The new filename.
+    """
+    dirname, root, junk = file_root(filename, ('fq', 'fastq'))
+    ext = 'fq.gz' if gzip else 'fq'
+    f = "{}.{}.{}".format(root, suffix, ext)
+    return os.path.join(outdir, f)
+
+def args_to_out_dir(args):
+    """Convenience function to retrieve the output directory from args.
+
+    Also mkdir the out_dir if it doesn't exist.
+
+    Arguments:
+        args (dict): Arguments from docopt.
+
+    Returns:
+        str: The name of the output directory.
+    """
+
+    if '-o' in args and args['-o'] is not None:
+        out_dir = args['-o']
+    elif '--out' in args and args['--out'] is not None:
+        our_dir = args['--out']
+    else:
+        out_dir = ""
+
+    try:
+        os.mkdir(out_dir)
+    except OSError:
+        try:
+            os.makedirs(out_dir)
+        except OSError:
+            pass
+
+    # Confirm existence if not ""
+    if out_dir != '' and not os.path.exists(out_dir):
+        m = "Unable to create output directory {}".format(out_dir)
+        raise CannotContinueException(m)
+
+    return out_dir
+
+def tmpf_start(*filenames):
+    """Takes a list of filenames and returns "temporary" versions of those
+    filenames. Works in conjuction with tmpf_finish().
+
+    Handles gzipped files as well.
+
+    Note: No actual files are created; only the names of files are created.
+
+    Args:
+        filename ([str]): The filename(s).
+    Returns:
+        [str]: A temporary version of the filename(s).
+    """
+    tmp_filenames = []
+    for filename in filenames:
+        is_gzipped = False
+        if filename[-3:] == '.gz':
+            is_gzipped = True
+            filename = filename[:-3]
+        chars = string.ascii_lowercase + string.digits
+        size = TMP_FILE_NAME_RANDOM_STR_SIZE
+        random_str = ''.join(random.choice(chars) for _ in xrange(size))
+        tmp_filename = "{}.tmp.{}".format(filename, random_str)
+        if is_gzipped:
+            tmp_filename += '.gz'
+        tmp_filenames.append(tmp_filename)
+    return tmp_filenames
+
+def tmpf_finish(*tmp_filenames):
+    """Makes a temporary version of a file permanent.  It strips off the
+    '.tmp.XXXXXX' part of the filename, the renames (moves) the actual file.
+    Does no checking to see if the file is still open (hopefully it isn't).
+
+    Handles gzipped files as well.
+
+    Args:
+        tmp_filenames ([str]): The temporary name of the file(s).
+    """
+    for tmp_filename in tmp_filenames:
+        is_gzipped = False
+        if tmp_filename[-3:] == '.gz':
+            is_gzipped = True
+            tmp_filename = tmp_filename[:-3]
+        size = len(".tmp.") + TMP_FILE_NAME_RANDOM_STR_SIZE
+        filename = tmp_filename[:-size]
+        ext = tmp_filename[-size:]
+        assert(ext[0:5] == '.tmp.')
+        if is_gzipped:
+            tmp_filename += '.gz'
+            filename += '.gz'
+        os.rename(tmp_filename, filename)
 
 
 ###############

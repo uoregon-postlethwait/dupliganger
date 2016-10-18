@@ -25,6 +25,88 @@ DEFAULT_SUPERDEDUPER_CONFIG_FILE =                    "superdeduper.config"
 ### Constants ###
 #################
 
+# Bioo kit name
+KIT_BIOO =                                                           'bioo'
+
+# Bioo UMIs
+UMIS_BIOO = ['AACGCCAT', 'AAGGTACG', 'AATTCCGG', 'ACACAGAG', 'ACACTCAG',
+        'ACACTGTG', 'ACAGGACA', 'ACCTGTAG', 'ACGAAGGT', 'ACGACTTG', 'ACGTCAAC',
+        'ACGTCATG', 'ACTGTCAG', 'ACTGTGAC', 'AGACACTC', 'AGAGGAGA', 'AGCATCGT',
+        'AGCATGGA', 'AGCTACCA', 'AGCTCTAG', 'AGGACAAC', 'AGGACATG', 'AGGTTGCT',
+        'AGTCGAGA', 'AGTGCTGT', 'ATAAGCGG', 'ATCCATGG', 'ATCGAACC', 'ATCGCGTA',
+        'ATCGTTGG', 'CAACGATC', 'CAACGTTG', 'CAACTGGT', 'CAAGTCGT', 'CACACACA',
+        'CAGTACTG', 'CATCAGCA', 'CATCGTTC', 'CCAAGGTT', 'CCTAGCTT', 'CGATTACG',
+        'CGCCTATT', 'CGTTCCAT', 'CGTTGGAT', 'CTACGTTC', 'CTACTCGT', 'CTAGAGGA',
+        'CTAGGAAG', 'CTAGGTAC', 'CTCAGTCT', 'CTGACTGA', 'CTGAGTGT', 'CTGATGTG',
+        'CTGTTCAC', 'CTTCGTTG', 'GAACAGGT', 'GAAGACCA', 'GAAGTGCA', 'GACATGAG',
+        'GAGAAGAG', 'GAGAAGTC', 'GATCCTAG', 'GATGTCGT', 'GCCGATAT', 'GCCGATTA',
+        'GCGGTATT', 'GGAATTGG', 'GGATAACG', 'GGCCTAAT', 'GGCGTATT', 'GTCTTGTC',
+        'GTGATGAG', 'GTGATGTC', 'GTGTACTG', 'GTGTAGTC', 'GTTCACCT', 'GTTCTGCT',
+        'GTTGTCGA', 'TACGAACC', 'TAGCAAGG', 'TAGCTAGC', 'TAGGTTCG', 'TATAGCGC',
+        'TCAGGACT', 'TCCACATC', 'TCGACTTC', 'TCGTAGGT', 'TCGTCATC', 'TGAGACTC',
+        'TGAGAGTG', 'TGAGTGAG', 'TGCTTGGA', 'TGGAGTAG', 'TGTGTGTG', 'TTCGCCTA',
+        'TTCGTTCG']
+
+# The number
+READ_GROUP_ID_DIGITS =                                                   10
+## Delimiters for the read name annotations ##
+# Delimiter to separate read names from their annotations
+DELIM_ANNO = '-'
+# Delimiter to separate read pairs
+DELIM_ANNO_READ_PAIR = '^'
+# Delimiter to separate records of different types
+DELIM_ANNO_TYPE = ';'
+# Delimiter to seperate records of the same type
+DELIM_ANNO_ELEMENT = ','
+
+## Other delimiters
+# Delimiter to separate SAM file fields
+DELIM_SAM_FIELD = '\t'
+
+# Delimiter to separate elements of a list in LMDB
+# Note: chr(30) is ACSII "record separator"
+DELIM_SAM_LIST_LMDB = chr(30)
+
+# Default delimiter to separate items in a SimpleBucketDb
+DELIM_BUCKET_LIST = ','
+
+# Delimiter to separate a ReadGroup's metadata from the SAM records the
+# ReadGroup contains.
+# Note: chr(29) is ACSII "group separator"
+DELIM_READ_GROUP_METADATA_SAM_RECORDS = chr(29)
+
+## Database stuff
+STORE_OPTION_LMDB = 'lmdb'
+STORE_OPTION_MEMORY = 'memory'
+
+### LMDB stuff ###
+# 1TB database size
+LMDB_DB_SIZE = 1024**4
+LMDB_MAX_DBS = 10
+RECORDS_PER_TXN = 1000000
+RECORDS_PER_TXN = 100000
+RECORDS_PER_TXN = 5000000
+# RECORDS_PER_TXN = 31
+# RECORDS_PER_TXN = 1
+# RECORDS_PER_TXN = 3
+# RECORDS_PER_TXN = 500
+
+# File suffixes
+# After --remove-umi is run.
+SUFFIX_REMOVE_UMI =                                                 'rmumi'
+# After remove-adapter is run.
+SUFFIX_REMOVE_ADAPTER =                                           'rmadapt'
+# For the "too-short" files produced by remove-adapter.
+SUFFIX_REMOVE_ADAPTER_TOO_SHORT =                                'tooshort'
+# After --qtrim is run.
+SUFFIX_QTRIM =                                                      'qtrim'
+SUFFIX_QTRIM_UNPAIRED =                                          'unpaired'
+# After --annotate-qtrim umi is run.
+SUFFIX_ANNOTATE_QTRIM =                                              'anno'
+
+# Number of characters in the random string of
+TMP_FILE_NAME_RANDOM_STR_SIZE =                                           6
+
 # SuperDeDuper log filename
 LOG_FILENAME =                                           'superdeduper.log'
 # Overall log level

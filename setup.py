@@ -1,12 +1,24 @@
 from setuptools import setup, find_packages
 from codecs import open  # To use a consistent encoding
 from os import path
+import sys
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
 with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
     long_description = f.read()
+
+# List of required packages for python 2 and 3.
+install_requires=['docopt', 'lmdb', 'distance']
+
+# List of backported required packages for python2.
+if sys.version_info < (3,0):
+    install_requires += [
+            # For lru_cache
+            'functools32',
+            # For unix-like "which" tool.
+            'whichcraft']
 
 setup(
     name='superdeduper',
@@ -47,7 +59,7 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['docopt', ],
+    install_requires=install_requires,
 
     # List additional groups of dependencies here (e.g. development dependencies).
     # You can install these using the following syntax, for example:
