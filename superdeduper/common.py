@@ -40,6 +40,9 @@ import shlex
 import string
 import random
 
+# For bam
+import gzip
+
 # # For shell-like "which()"
 try:
     from shutil import which
@@ -207,6 +210,34 @@ def pgopen(num_threads, filename):
             cmd = shlex.split('gunzip -c {}'.format(filename))
             with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
                 yield f
+
+@contextlib.contextmanager
+def bamopen(filename, silence_broken_pipe_errors=False):
+    """Context manager to open a BAM file for reading only.
+
+    Usage:
+        with bamopen(file) as f:
+            # do stuff...
+
+    Args:
+        filename (str): The filename to examine.
+        silence_broken_pipe_errors (bool): If True, then pipe stderr to
+            /dev/null.  This is useful if you only want to "peek" at the first
+            few bytes / lines of a file; in that scenario, if you close before
+            reading all the output, samtools will complain of a broken pipe.
+    """
+
+    # gzip read
+    cmd = shlex.split('samtools view {}'.format(filename))
+    if silence_broken_pipe_errors:
+        import os
+        DEVNULL = open(os.devnull, 'wb')
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                stderr=DEVNULL).stdout as f:
+            yield f
+    else:
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
+            yield f
 
 @contextlib.contextmanager
 def gzwrite(filename):
@@ -386,6 +417,45 @@ def filename_in_to_out_fqgz(filename, suffix, gzip, outdir):
     f = "{}.{}.{}".format(root, suffix, ext)
     return os.path.join(outdir, f)
 
+def filename_in_bam_to_out_fqgz(filename, suffix, gzip, paired, outdir):
+    """Converts a BAM filename to new FASTQ single-end OR paired-end
+    filename(s) with suffix, optionally gzipped.
+
+    Args:
+        filename (str): Name of file to transform.
+        suffix (str): Suffix to add to filename.
+        gzip (bool): Whether or not to add a "gz" on the end.
+        paired (bool): True: paired-end data, False, single-end data.
+        outdir (str): Directory to place filename in.
+
+    Returns:
+        [str]: The new filename(s).
+
+    >>> filename_in_bam_to_out_fqgz('/path/to/file.bam', 'stage1', True, True, '.')
+    ['./file_R1.stage1.fq.gz', './file_R2.stage1.fq.gz']
+    >>> filename_in_bam_to_out_fqgz('/path/to/file.bam', 'stage1', False, True, '.')
+    ['./file_R1.stage1.fq', './file_R2.stage1.fq']
+    >>> filename_in_bam_to_out_fqgz('/path/to/file.bam', 'stage1', True, True, 'outdir')
+    ['outdir/file_R1.stage1.fq.gz', 'outdir/file_R2.stage1.fq.gz']
+    >>> filename_in_bam_to_out_fqgz('/path/to/file.bam', 'stage1', True, False, '.')
+    ['./file.stage1.fq.gz']
+    >>> filename_in_bam_to_out_fqgz('/path/to/file.bam', 'stage1', False, False, '.')
+    ['./file.stage1.fq']
+    >>> filename_in_bam_to_out_fqgz('/path/to/file.bam', 'stage1', True, False, 'outdir')
+    ['outdir/file.stage1.fq.gz']
+    """
+    dirname, root, junk = file_root(filename, ('bam', 'BAM'))
+    ext = 'fq.gz' if gzip else 'fq'
+    if paired:
+        f1 = "{}_R1.{}.{}".format(root, suffix, ext)
+        f2 = "{}_R2.{}.{}".format(root, suffix, ext)
+        fqgzs = [os.path.join(outdir, f1), os.path.join(outdir, f2)]
+    else:
+        f = "{}.{}.{}".format(root, suffix, ext)
+        fqgzs = [os.path.join(outdir, f)]
+
+    return fqgzs
+
 def args_to_out_dir(args):
     """Convenience function to retrieve the output directory from args.
 
@@ -471,6 +541,59 @@ def tmpf_finish(*tmp_filenames):
             tmp_filename += '.gz'
             filename += '.gz'
         os.rename(tmp_filename, filename)
+
+def is_gzipped(filename):
+    """Determines if the file is gzipped or not. Uses magic number.
+
+    Args:
+        filename (str): The file to examine.
+    Returns:
+        bool: True if it is a gzipped file, False otherwise.
+    """
+    with open(filename, 'r') as f:
+        # Is this a gzipped file? Check magic number.
+        magic_num = f.read(2)
+
+    return magic_num == '\x1f\x8b'
+
+def is_bam(filename):
+    """Determines if the file is a BAM file or not. Uses magic number.
+
+    Args:
+        filename (str): The file to examine.
+    Returns:
+        bool: True if it is a BAM file, False otherwise.
+    """
+    try:
+        with gzip.open(filename, 'rb') as f:
+            magic_num = f.read(3)
+            f.seek(0)
+            if magic_num == 'BAM':
+                return True
+            else:
+                return False
+    except IOError:
+        # If it's not gzipped, then it's not a BAM.
+        return False
+
+def is_paired_bam(filename):
+    """Detects if a BAM file is paired.
+
+    Args:
+        filename (str): The file to examine.
+    Returns:
+        bool: True if it is a paired BAM file, False otherwise.
+    """
+    assert(is_bam(filename))
+
+    name1 = None
+    name2 = None
+
+    with bamopen(filename, True) as f:
+        name1 = f.readline().split()[0]
+        name2 = f.readline().split()[0]
+
+    return name1 == name2
 
 
 ###############

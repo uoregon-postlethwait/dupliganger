@@ -45,7 +45,7 @@ from __future__ import division
 # SuperDeDuper imports
 from superdeduper.constants import *
 from superdeduper.common import (pgopen, tmpf_start, tmpf_finish,
-        filename_in_to_out_fqgz, pe_log_filename, se_log_filename,
+        is_gzipped, filename_in_to_out_fqgz, pe_log_filename, se_log_filename,
         args_to_out_dir)
 
 ## Other imports
@@ -54,7 +54,7 @@ from docopt import docopt
 # For converting ~ to full path
 import os
 
-# # For shell-like "which()"
+# For shell-like "which()"
 try:
     from shutil import which
 except ImportError:
@@ -72,7 +72,7 @@ import functools
 ### Functions ###
 #################
 
-def create_annotated_files(in1, in2, trim_log, out1, out2):
+def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
     """Creates paired-end files with read names annotated with amount of 5'-trimming.
 
     Example:
@@ -84,12 +84,22 @@ def create_annotated_files(in1, in2, trim_log, out1, out2):
         trim_log (file): Trimmomatic trim log.
         out1 (file): Read1 annotated fastq output filehandle.
         out2 (file): Read2 annotated fastq output filehandle.
+        has_index (bool): Whether or not these FASTQ files have the index
+            string (e.g. 'read_id 1:N:0:ATCACGTT')
     """
     while True:
         name1, seq1, _, qual1 = \
                 (in1.readline().rstrip() for i in xrange(4))
         name2, seq2, _, qual2 = \
                 (in2.readline().rstrip() for i in xrange(4))
+
+        if not name1 or not name1:
+            break
+
+        if has_index:
+            name1, index_str1 = name1.split()
+            name2, index_str2 = name2.split()
+
         # examples:
         # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT|GAGAAGAG/1 110 3 113 4
         # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT|GAGAAGAG/2 117 0 117 0
@@ -105,33 +115,56 @@ def create_annotated_files(in1, in2, trim_log, out1, out2):
             if len(p1) == 0 or len(p2) == 0:
                 eof = True
                 break
-            tname1, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
-            tname2, _, trimmed2_5p, last_base_pos2, trimmed2_3p = p2
+
+            if has_index:
+                tname1, _, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
+                tname2, _, _, trimmed2_5p, last_base_pos2, trimmed2_3p = p2
+            else:
+                tname1, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
+                tname2, _, trimmed2_5p, last_base_pos2, trimmed2_3p = p2
 
             if not tname1 or not tname2:
                 eof = True
 
-        if eof or not name1 or not name2:
+        if eof:
             # EOF
             break
 
-        # prefix '@' to match name[12]
-        tname1 = '@' + tname1
-        tname2 = '@' + tname2
-
-        # Get the name (ok to consider UMIs part of the name in this part of
-        # code)
-        name = name1[:-2]
+        # # prefix '@' to match name[12]
+        # tname1 = '@' + tname1
+        # tname2 = '@' + tname2
 
         # e.g. "1^5"
         trimmed = "{}{}{}".format(trimmed1_5p, DELIM_ANNO_READ_PAIR,
                 trimmed2_5p)
-        # e.g. "ReadName-ACGT,AATT|GGCC;1^5"
-        name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
+
+        if name1[-2:] == '/1':
+            # Some datasets have a '/1' and '/2' at end of R1 and R2 read names
+            # respectively.
+            neg_index = -2
+            name = name1[:-2]
+            # e.g. "ReadName-ACGT,AATT|GGCC;1^5"
+            name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
+            record1 = "{}/1\n{}\n+\n{}\n".format(name_anno, seq1, qual1)
+            record2 = "{}/2\n{}\n+\n{}\n".format(name_anno, seq2, qual2)
+        elif has_index:
+            # Some reads have the index included.
+            neg_index = 0
+            name = name1
+            name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
+            record1 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str1, seq1, qual1)
+            record2 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str2, seq2, qual2)
+        else:
+            # Some reads have neither the index nor the /1, /2
+            neg_index = 0
+            name = name1
+            name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
+            record1 = "{}\n{}\n+\n{}\n".format(name_anno, seq1, qual1)
+            record2 = "{}\n{}\n+\n{}\n".format(name_anno, seq2, qual2)
 
         # Write the files
-        out1.write("{}/1\n{}\n+\n{}\n".format(name_anno, seq1, qual1))
-        out2.write("{}/2\n{}\n+\n{}\n".format(name_anno, seq2, qual2))
+        out1.write(record1)
+        out2.write(record2)
 
 def create_annotated_file(in1, trim_log, out1):
     """Creates single-end FASTQ file with read names annotated with amount of 5'-trimming.
@@ -191,7 +224,6 @@ def create_annotated_file(in1, trim_log, out1):
             # Write the files
             out1.write("{}\n{}\n+\n{}\n".format(name_anno, seq1, qual1))
 
-
 def parse_args():
     """Parse the command line arguments."""
     args = docopt(__doc__)
@@ -231,6 +263,15 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
         input_files ([str]): Input files.
     """
 
+    # Some fastq files have an index read in them. Detect.
+    if is_gzipped(input_files[0]):
+        with gzip.open(input_files[0], 'rb') as in1:
+            first_line = in1.readline()
+    else:
+        with open(input_files[0], 'r') as in1:
+            first_line = in1.readline()
+    has_index = True if len(first_line.split()) > 1 else False
+
     if len(input_files) == 2:
         in1, in2 = input_files
         out1 = filename_in_to_out_fqgz(in1, SUFFIX_ANNOTATE_QTRIM, compress,
@@ -251,7 +292,7 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
                 pgopen(1, trim_log) as ftrim_log, \
                 write_func(tmp_out1) as fout1, \
                 write_func(tmp_out2) as fout2:
-            create_annotated_files(fin1, fin2, ftrim_log, fout1, fout2)
+            create_annotated_files(fin1, fin2, ftrim_log, fout1, fout2, has_index)
 
         tmpf_finish(tmp_out1, tmp_out2)
 
@@ -270,7 +311,7 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
         with    pgopen(1, in1) as fin1, \
                 pgopen(1, trim_log) as ftrim_log, \
                 write_func(tmp_out1) as fout1:
-            create_annotated_file(fin1, ftrim_log, fout1)
+            create_annotated_file(fin1, ftrim_log, fout1, has_index)
         tmpf_finish(tmp_out1)
 
     else:
