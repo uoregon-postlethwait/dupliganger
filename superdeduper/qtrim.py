@@ -211,7 +211,6 @@ def run(num_threads, outdir, compress, phred, trimmomatic_args, input_files):
 
 def main():
     args = docopt(__doc__)
-    print args
     run(*parse_args())
 
 # vim: softtabstop=4:shiftwidth=4:expandtab
