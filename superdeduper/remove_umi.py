@@ -105,7 +105,7 @@ def create_annotated_files_from_bam(fp_extract_umis, in1, out1, out2):
     # Walk the file and create a new annotated file
     while True:
         line1 = in1.readline()
-        line2 = in1.readline()
+        line2 = in2.readline()
         if not line1:
             # EOF
             break
