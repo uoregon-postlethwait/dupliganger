@@ -354,41 +354,41 @@ def se_log_filename(prefix, se_filename, suffix='out'):
     """Given a single-end (R1) filename, returns an appropriate log filename to
     be used for logging output of external tools.
 
-    >>> se_log_filename('rmadapt', 'filename_R1.fq')
-    'exec.rmadapt.filename_R1.out'
-    >>> se_log_filename('rmadapt', 'filename_R1.fq.gz')
-    'exec.rmadapt.filename_R1.out'
-    >>> se_log_filename('rmadapt', 'filename_R1_other_stuff.fq.gz')
-    'exec.rmadapt.filename_R1_other_stuff.out'
-    >>> se_log_filename('rmadapt', '/path/to/filename_R1.fq')
-    '/path/to/exec.rmadapt.filename_R1.out'
+    >>> se_log_filename('rmadapt', 'filename.fq')
+    'exec.rmadapt.sr.filename_out'
+    >>> se_log_filename('rmadapt', 'filename.fq.gz')
+    'exec.rmadapt.sr.filename_out'
+    >>> se_log_filename('rmadapt', 'filename_other_stuff.fq.gz')
+    'exec.rmadapt.sr.filename_other_stuff.out'
+    >>> se_log_filename('rmadapt', '/path/to/filename.fq')
+    '/path/to/exec.rmadapt.sr.filename.out'
 
     """
     dirname, root, junk = file_root(se_filename, ['fq', 'fastq'])
     if not dirname or dirname == '.':
-        return "exec.{}.{}.{}".format(prefix, root, suffix)
+        return "exec.{}.sr.{}.{}".format(prefix, root, suffix)
     else:
-        return "{}/exec.{}.{}.{}".format(dirname, prefix, root, suffix)
+        return "{}/exec.{}.sr.{}.{}".format(dirname, prefix, root, suffix)
 
 def pe_log_filename(prefix, pe_filename, suffix='out'):
     """Given a paired-end (R2) filename, returns an appropriate log filename to
     be used for logging output of external tools.
 
     >>> pe_log_filename('rmadapt', 'filename_R2.fq')
-    'exec.rmadapt.filename.out'
+    'exec.rmadapt.pe.filename.out'
     >>> pe_log_filename('rmadapt', 'filename_R2.fq.gz')
-    'exec.rmadapt.filename.out'
+    'exec.rmadapt.pe.filename.out'
     >>> pe_log_filename('rmadapt', 'filename_R2_other_stuff.fq.gz')
-    'exec.rmadapt.filename_other_stuff.out'
+    'exec.rmadapt.pe.filename_other_stuff.out'
     >>> pe_log_filename('rmadapt', '/path/to/filename_R2.fq')
-    '/path/to/exec.rmadapt.filename.out'
+    '/path/to/exec.rmadapt.pe.filename.out'
 
     """
     dirname, root, ext = pe_file_root(pe_filename)
     if not dirname or dirname == '.':
-        return "exec.{}.{}.{}".format(prefix, root, suffix)
+        return "exec.{}.pe.{}.{}".format(prefix, root, suffix)
     else:
-        return "{}/exec.{}.{}.{}".format(dirname, prefix, root, suffix)
+        return "{}/exec.{}.pe.{}.{}".format(dirname, prefix, root, suffix)
 
 def filename_in_to_out_fqgz(filename, suffix, gzip, outdir):
     """Converts a FASTQ filename to new filename with suffix, optionally gzipped.

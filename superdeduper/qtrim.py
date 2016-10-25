@@ -122,10 +122,9 @@ def qtrim(num_threads, phred, trimmomatic_args, *input_output_files):
         raise ExecutionException(
                 """Failure to execute properly. See {}""".format(out_log))
 
-def parse_args():
+def parse_args(args):
     """Parse the command line arguments.
     """
-    args = docopt(__doc__)
 
     # Convert ~ to real path, and get input files
     if args['<in2.fastq>']:
@@ -167,8 +166,9 @@ def run(num_threads, outdir, compress, phred, trimmomatic_args, input_files):
         in1, in2 = input_files
         out1 = filename_in_to_out_fqgz(in1, SUFFIX_QTRIM, compress, outdir)
         out2 = filename_in_to_out_fqgz(in2, SUFFIX_QTRIM, compress, outdir)
-        out_log = pe_log_filename(SUFFIX_REMOVE_ADAPTER, out2)
-        trim_log = pe_log_filename(SUFFIX_REMOVE_ADAPTER, out2, 'trimlog')
+        out_files = [out1, out2]
+        out_log = pe_log_filename(SUFFIX_QTRIM, out2)
+        trim_log = pe_log_filename(SUFFIX_QTRIM, out2, 'trimlog')
         # i.e. for those that end up unpaired because partner trimmed too much
         unpaired_out1 = filename_in_to_out_fqgz(out1, SUFFIX_QTRIM_UNPAIRED,
                 compress, outdir)
@@ -186,8 +186,9 @@ def run(num_threads, outdir, compress, phred, trimmomatic_args, input_files):
     elif len(input_files) == 1:
         in1 = input_files[0]
         out1 = filename_in_to_out_fqgz(in1, SUFFIX_QTRIM, compress, outdir)
-        out_log = se_log_filename(SUFFIX_REMOVE_ADAPTER, out1)
-        trim_log = se_log_filename(SUFFIX_REMOVE_ADAPTER, out1, 'trimlog')
+        out_files = [out1]
+        out_log = se_log_filename(SUFFIX_QTRIM, out1)
+        trim_log = se_log_filename(SUFFIX_QTRIM, out1, 'trimlog')
 
         tmp_out1 = tmpf_start(out1)[0]
 
@@ -198,6 +199,8 @@ def run(num_threads, outdir, compress, phred, trimmomatic_args, input_files):
     else:
         raise ControlFlowException, \
                 """ERR911: Not possible to be here."""
+
+    return out_files
 
 
 ###############
@@ -211,6 +214,6 @@ def run(num_threads, outdir, compress, phred, trimmomatic_args, input_files):
 
 def main():
     args = docopt(__doc__)
-    run(*parse_args())
+    run(*parse_args(args))
 
 # vim: softtabstop=4:shiftwidth=4:expandtab

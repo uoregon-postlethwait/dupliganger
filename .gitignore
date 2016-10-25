@@ -12,3 +12,11 @@ docs.orig
 
 # Python egg metadata
 /*.egg-info
+
+# don't keep test run files
+superdeduper/test/files/last_run
+
+# Ignore tox testing
+.tox
+
+.cache

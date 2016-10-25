@@ -93,7 +93,7 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
         name2, seq2, _, qual2 = \
                 (in2.readline().rstrip() for i in xrange(4))
 
-        if not name1 or not name1:
+        if not name1 or not name2:
             break
 
         if has_index:
@@ -133,6 +133,8 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
         # # prefix '@' to match name[12]
         # tname1 = '@' + tname1
         # tname2 = '@' + tname2
+        # assert (tname1 == name1)
+        # assert (tname2 == name2)
 
         # e.g. "1^5"
         trimmed = "{}{}{}".format(trimmed1_5p, DELIM_ANNO_READ_PAIR,
@@ -141,7 +143,6 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
         if name1[-2:] == '/1':
             # Some datasets have a '/1' and '/2' at end of R1 and R2 read names
             # respectively.
-            neg_index = -2
             name = name1[:-2]
             # e.g. "ReadName-ACGT,AATT|GGCC;1^5"
             name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
@@ -149,14 +150,12 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
             record2 = "{}/2\n{}\n+\n{}\n".format(name_anno, seq2, qual2)
         elif has_index:
             # Some reads have the index included.
-            neg_index = 0
             name = name1
             name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
             record1 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str1, seq1, qual1)
             record2 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str2, seq2, qual2)
         else:
             # Some reads have neither the index nor the /1, /2
-            neg_index = 0
             name = name1
             name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
             record1 = "{}\n{}\n+\n{}\n".format(name_anno, seq1, qual1)
@@ -166,7 +165,7 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
         out1.write(record1)
         out2.write(record2)
 
-def create_annotated_file(in1, trim_log, out1):
+def create_annotated_file(in1, trim_log, out1, has_index):
     """Creates single-end FASTQ file with read names annotated with amount of 5'-trimming.
 
     Example:
@@ -176,57 +175,69 @@ def create_annotated_file(in1, trim_log, out1):
         in1 (file): FASTQ input filehandle.
         trim_log (file): Trimmomatic trim log.
         out1 (file): Annotated fastq output filehandle.
+        has_index (bool): Whether or not this FASTQ file has the index
+            string (e.g. 'read_id 1:N:0:ATCACGTT')
     """
     while True:
         name1, seq1, _, qual1 = \
                 (in1.readline().rstrip() for i in xrange(4))
 
-        # examples:
-        # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT|GAGAAGAG/1 110 3 113 4
-        eof = False
+        if not name1:
+            break
 
+        if has_index:
+            name1, index_str1 = name1.split()
+
+        # examples:
+        # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT 110 3 113 4
+        eof = False
         # The following two lines work together to skip over cases where
         # trimmomatic chucked the entire read.
         last_base_pos1 = 0
-        while (not eof and (last_base_pos1 == 0)):
+
+        while (not eof and last_base_pos1 == 0):
 
             p1 = trim_log.readline().split()
+
             if len(p1) == 0:
                 eof = True
                 break
-            tname1, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
+
+            if has_index:
+                tname1, _, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
+            else:
+                tname1, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
 
             if not tname1:
                 eof = True
 
-        if eof or not name1:
+        if eof:
             # EOF
             break
 
-        # prefix '@' to match name[12]
+        # prefix '@' to match name1
         tname1 = '@' + tname1
+        assert (tname1 == name1)
 
         # e.g. "1"
-        trimmed = trimmed1_5p
+        trimmed = "{}".format(trimmed1_5p)
 
-        if name1[-2:] == '/1':
-            # Get the name (ok to consider UMIs part of the name in this part
-            # of code)
-            name = name1[:-2]
-            # e.g. "ReadName-GGCC;1"
-            name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
-            # Write the files
-            out1.write("{}/1\n{}\n+\n{}\n".format(name_anno, seq1, qual1))
-        else:
+        if has_index:
+            # Some reads have the index included.
             name = name1
-            # e.g. "ReadName-GGCC;1"
             name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
-            # Write the files
-            out1.write("{}\n{}\n+\n{}\n".format(name_anno, seq1, qual1))
+            record1 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str1, seq1, qual1)
+        else:
+            # Some reads have neither the index nor the /1, /2
+            name = name1
+            name_anno = DELIM_ANNO_TYPE.join((name, trimmed))
+            record1 = "{}\n{}\n+\n{}\n".format(name_anno, seq1, qual1)
 
-def parse_args():
+        # Write the files
+        out1.write(record1)
+
+def parse_args(args):
     """Parse the command line arguments."""
-    args = docopt(__doc__)
 
     # Convert ~ to real path (strip silly leading './' too)
     if args['<in2.fastq>']:
@@ -278,12 +289,13 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
                 outdir)
         out2 = filename_in_to_out_fqgz(in2, SUFFIX_ANNOTATE_QTRIM, compress,
                 outdir)
+        out_files = [out1, out2]
 
         if opt_trimlog is not None:
             trim_log = opt_trimlog
         else:
             qtrim_out2_file = out2.replace(SUFFIX_QTRIM + '.', '')
-            trim_log = pe_log_filename(SUFFIX_REMOVE_ADAPTER, in2, 'trimlog')
+            trim_log = pe_log_filename(SUFFIX_QTRIM, in2, 'trimlog')
 
         tmp_out1, tmp_out2 = tmpf_start(out1, out2)
 
@@ -300,12 +312,13 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
         in1 = input_files[0]
         out1 = filename_in_to_out_fqgz(in1, SUFFIX_ANNOTATE_QTRIM, compress,
                 outdir)
+        out_files = [out1]
 
         if opt_trimlog is not None:
             trim_log = opt_trimlog
         else:
             qtrim_out_file = out1.replace(SUFFIX_QTRIM + '.', '')
-            trim_log = se_log_filename(SUFFIX_REMOVE_ADAPTER, in1, 'trimlog')
+            trim_log = se_log_filename(SUFFIX_QTRIM, in1, 'trimlog')
 
         tmp_out1 = tmpf_start(out1)[0]
         with    pgopen(1, in1) as fin1, \
@@ -317,6 +330,8 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
     else:
         raise ControlFlowException, \
                 """ERR911: Not possible to be here."""
+
+    return out_files
 
 
 ###############
@@ -330,6 +345,6 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
 
 def main():
     args = docopt(__doc__)
-    run(*parse_args())
+    run(*parse_args(args))
 
 # vim: softtabstop=4:shiftwidth=4:expandtab

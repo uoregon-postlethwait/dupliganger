@@ -141,9 +141,8 @@ def se_remove_adapter(in1, out1, short1, out_log, adapter1, cutadapt_args):
         raise ExecutionException(
                 """Failure to execute properly. See {}""".format(out_log))
 
-def parse_args():
+def parse_args(args):
     """Parse the command line arguments."""
-    args = docopt(__doc__)
     adapters = []
 
     # Convert ~ to real path
@@ -259,6 +258,6 @@ def run(compress, outdir, cutadapt_args, adapters, input_files):
 
 def main():
     args = docopt(__doc__)
-    run(*parse_args())
+    run(*parse_args(args))
 
 # vim: softtabstop=4:shiftwidth=4:expandtab

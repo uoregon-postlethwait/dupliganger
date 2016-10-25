@@ -32,14 +32,14 @@ Options:
     -k KIT, --kit KIT     The kit used [default: bioo].
     -o OUT_DIR            Place results in directory OUT_DIR.
     --compress            Compress (gzip) output files.
-    --force-paired        Do not autodetect whether paired-end vs single-end,
-                          instead force paired-end. Helpful fail safe if you
-                          believe you have paired end data.
     -t N, --threads N     EXPERIMENTAL: If pigz is installed and --threads is
                           specified, output FASTQ files will be compressed with
                           pigz -p <n>; otherwise, they will be left
                           uncompressed (as it simply takes too long to compress
                           with just gzip).
+    --force-paired        Do not autodetect whether paired-end vs single-end,
+                          instead force paired-end. Helpful fail safe if you
+                          believe you have paired end data.
 """
 
 ###############
@@ -87,9 +87,35 @@ import functools
 ### Functions ###
 #################
 
-def create_annotated_files(fp_extract_umis, in1, in2, out1, out2):
-    """Create a FASTQ file, with read name annotated with UMI, paired-end
-    version.
+def create_annotated_file_from_bam(fp_extract_umi, in1, out1):
+    """Using a single-end BAM file as input, convert to FASTQ output file
+    with read name annotated with UMI.
+
+    Args:
+        fp_extract_umi (function): A function used to extract the UMI.
+        in1 (file): Single-end BAM input file.
+        out1 (file): Annotated output fastq file.
+    """
+
+    # Walk the file and create a new annotated file
+    while True:
+        line1 = in1.readline()
+        if not line1:
+            # EOF
+            break
+
+        parts1 = line1.split()
+        name1, seq1, qual1 = parts1[0], parts1[9], parts1[10]
+
+        name1 = '@' + name1
+
+        clip_len1, umi1 = fp_extract_umi(seq1)
+        umi_anno = umi1
+
+        name1_anno = "{}{}{}".format(name1, DELIM_ANNO, umi_anno)
+
+        out1.write("{}\n{}\n+\n{}\n".format(name1_anno, seq1[clip_len1:],
+            qual1[clip_len1:]))
 
 def create_annotated_files_from_bam(fp_extract_umis, in1, out1, out2):
     """Using a paired-end BAM file as input, create paired FASTQ output files
@@ -192,8 +218,8 @@ def create_annotated_files_from_fastq(fp_extract_umis, in1, in2, out1, out2,
             name_anno = "{}{}{}".format(name, DELIM_ANNO, umis_anno)
             record1 = "{}/1\n{}\n+\n{}\n".format(name_anno, seq1[clip_len1:],
                     qual1[clip_len1:])
-            record2 = "{}/2\n{}\n+\n{}\n".format(name_anno, seq1[clip_len1:],
-                    qual1[clip_len1:])
+            record2 = "{}/2\n{}\n+\n{}\n".format(name_anno, seq2[clip_len2:],
+                    qual2[clip_len2:])
         elif has_index:
             # Some reads have the index included.
             neg_index = 0
@@ -202,7 +228,7 @@ def create_annotated_files_from_fastq(fp_extract_umis, in1, in2, out1, out2,
             record1 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str1,
                     seq1[clip_len1:], qual1[clip_len1:])
             record2 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str2,
-                    seq1[clip_len2:], qual1[clip_len2:])
+                    seq2[clip_len2:], qual2[clip_len2:])
         else:
             # Some reads have neither the index nor the /1, /2
             neg_index = 0
@@ -210,8 +236,8 @@ def create_annotated_files_from_fastq(fp_extract_umis, in1, in2, out1, out2,
             name_anno = "{}{}{}".format(name, DELIM_ANNO, umis_anno)
             record1 = "{}\n{}\n+\n{}\n".format(name_anno, seq1[clip_len1:],
                     qual1[clip_len1:])
-            record2 = "{}\n{}\n+\n{}\n".format(name_anno, seq1[clip_len2:],
-                    qual1[clip_len2:])
+            record2 = "{}\n{}\n+\n{}\n".format(name_anno, seq2[clip_len2:],
+                    qual2[clip_len2:])
 
         # Confirm names are same.
         if name1[:neg_index] != name2[:neg_index]:
@@ -249,18 +275,20 @@ def create_annotated_file_from_fastq(fp_extract_umi, in1, out1, has_index):
         if has_index:
             name1, index_str1 = name1.split()
 
-        # Some datasets have a '/1' at end of read names.
-        if name1[-2:] == '/1':
-            name = name1[:-2]
+        if has_index:
+            # Some reads have the index included.
+            name = name1
             name_anno = "{}{}{}".format(name, DELIM_ANNO, umi_anno)
-            name1_anno = "{}/1".format(name_anno)
-            name1_full = name1_anno
+            record1 = "{} {}\n{}\n+\n{}\n".format(name_anno, index_str1,
+                    seq1[clip_len1:], qual1[clip_len1:])
         else:
-            name1_anno = "{}{}{}".format(name1, DELIM_ANNO, umis_anno)
-            name1_full = "{} {}".format(name1_anno, index_str1)
+            # For reads that don't have an index.
+            name = name1
+            name_anno = "{}{}{}".format(name, DELIM_ANNO, umi_anno)
+            record1 = "{}\n{}\n+\n{}\n".format(name_anno, seq1[clip_len1:],
+                    qual1[clip_len1:])
 
-        out1.write("{}\n{}\n+\n{}\n".format(name1_full, seq1[clip_len1:],
-            qual1[clip_len1:]))
+        out1.write(record1)
 
 def extract_single_umi_bioo(seq1):
     """Extract the Bioo UMI from a single end read.
@@ -298,9 +326,8 @@ def extract_paired_umis_bioo(seq1, seq2):
 
     return (clip_len, clip_len, umi1, umi2)
 
-def parse_args():
+def parse_args(args):
     """Parse the command line arguments. """
-    args = docopt(__doc__)
 
     # Paired or single end? FASTQ or BAM?
     if args['<in2.fastq>']:
@@ -405,6 +432,7 @@ def run(fp_extract_umi, fp_anno, fp_write, outdir, compress, force_paired,
         infile1 = input_files[0]
         out1, out2 = filename_in_bam_to_out_fqgz(infile1,
                 SUFFIX_REMOVE_UMI, compress, True, outdir)
+        out_files = [out1, out2]
         tmp_out1, tmp_out2 = tmpf_start(out1, out2)
 
         with bamopen(infile1) as in1, \
@@ -417,14 +445,14 @@ def run(fp_extract_umi, fp_anno, fp_write, outdir, compress, force_paired,
         # BAM, single-end
         infile1 = input_files[0]
         out1 = filename_in_bam_to_out_fqgz(infile1, SUFFIX_REMOVE_UMI,
-                compress, False, outdir)
-        tmp_out1, tmp_out2 = tmpf_start(out1, out2)
+                compress, False, outdir)[0]
+        out_files = [out1]
+        tmp_out1 = tmpf_start(out1)[0]
 
         with bamopen(infile1) as in1, \
-                fp_write(tmp_out1) as out1, \
-                fp_write(tmp_out2) as out2:
-            fp_anno(fp_extract_umi, in1, out1, out2)
-        tmpf_finish(tmp_out1, tmp_out2)
+                fp_write(tmp_out1) as out1:
+            fp_anno(fp_extract_umi, in1, out1)
+        tmpf_finish(tmp_out1)
 
     else:
 
@@ -449,6 +477,7 @@ def run(fp_extract_umi, fp_anno, fp_write, outdir, compress, force_paired,
                     outdir)
             out2 = filename_in_to_out_fqgz(infile2, SUFFIX_REMOVE_UMI, compress,
                     outdir)
+            out_files = [out1, out2]
             tmp_out1, tmp_out2 = tmpf_start(out1, out2)
 
             with pgopen(1, infile1) as in1, \
@@ -460,19 +489,22 @@ def run(fp_extract_umi, fp_anno, fp_write, outdir, compress, force_paired,
 
         elif len(input_files) == 1:
             # FASTQ, single-end
-            infile = input_files[0]
-            out = filename_in_to_out_fqgz(infile, SUFFIX_REMOVE_UMI, compress,
+            infile1 = input_files[0]
+            out1 = filename_in_to_out_fqgz(infile1, SUFFIX_REMOVE_UMI, compress,
                     outdir)
-            tmp_out = tmpf_start(out)[0]
+            out_files = [out1]
+            tmp_out = tmpf_start(out1)[0]
 
-            with pgopen(1, infile) as in1, \
+            with pgopen(1, infile1) as in1, \
                     fp_write(tmp_out) as out1:
-                fp_anno(fp_extract_umi, int1, out1, has_index)
+                fp_anno(fp_extract_umi, in1, out1, has_index)
             tmpf_finish(tmp_out)
 
         else:
             raise ControlFlowException(
                     """ERR911: Not possible to be here.""")
+
+    return out_files
 
 ###############
 ### Classes ###
@@ -485,6 +517,6 @@ def run(fp_extract_umi, fp_anno, fp_write, outdir, compress, force_paired,
 
 def main():
     args = docopt(__doc__)
-    run(*parse_args())
+    run(*parse_args(args))
 
 # vim: softtabstop=4:shiftwidth=4:expandtab
