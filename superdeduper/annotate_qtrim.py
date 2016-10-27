@@ -87,6 +87,7 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
         has_index (bool): Whether or not these FASTQ files have the index
             string (e.g. 'read_id 1:N:0:ATCACGTT')
     """
+    eof = False
     while True:
         name1, seq1, _, qual1 = \
                 (in1.readline().rstrip() for i in xrange(4))
@@ -103,11 +104,10 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
         # examples:
         # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT|GAGAAGAG/1 110 3 113 4
         # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT|GAGAAGAG/2 117 0 117 0
-        eof = False
-        # The following two lines work together to skip over cases where
-        # trimmomatic chucked the entire read.
-        last_base_pos1 = last_base_pos2 = 0
-        while (not eof and (last_base_pos1 == 0 or last_base_pos2 == 0)):
+
+        tname1 = None
+        tname2 = None
+        while (tname1 != name1 or tname2 != name2):
 
             p1 = trim_log.readline().split()
             p2 = trim_log.readline().split()
@@ -123,18 +123,16 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
                 tname1, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
                 tname2, _, trimmed2_5p, last_base_pos2, trimmed2_3p = p2
 
-            if not tname1 or not tname2:
-                eof = True
+            # prefix '@' to match name[12]
+            tname1 = '@' + tname1
+            tname2 = '@' + tname2
 
         if eof:
             # EOF
             break
 
-        # # prefix '@' to match name[12]
-        # tname1 = '@' + tname1
-        # tname2 = '@' + tname2
-        # assert (tname1 == name1)
-        # assert (tname2 == name2)
+        assert (tname1 == name1)
+        assert (tname2 == name2)
 
         # e.g. "1^5"
         trimmed = "{}{}{}".format(trimmed1_5p, DELIM_ANNO_READ_PAIR,
@@ -178,6 +176,7 @@ def create_annotated_file(in1, trim_log, out1, has_index):
         has_index (bool): Whether or not this FASTQ file has the index
             string (e.g. 'read_id 1:N:0:ATCACGTT')
     """
+    eof = False
     while True:
         name1, seq1, _, qual1 = \
                 (in1.readline().rstrip() for i in xrange(4))
@@ -190,13 +189,9 @@ def create_annotated_file(in1, trim_log, out1, has_index):
 
         # examples:
         # D00597:180:C7NMDANXX:6:1101:1184:35164-ACGAAGGT 110 3 113 4
-        eof = False
-        # The following two lines work together to skip over cases where
-        # trimmomatic chucked the entire read.
-        last_base_pos1 = 0
 
-        while (not eof and last_base_pos1 == 0):
-
+        tname1 = None
+        while (tname1 != name1):
             p1 = trim_log.readline().split()
 
             if len(p1) == 0:
@@ -208,15 +203,13 @@ def create_annotated_file(in1, trim_log, out1, has_index):
             else:
                 tname1, _, trimmed1_5p, last_base_pos1, trimmed1_3p = p1
 
-            if not tname1:
-                eof = True
+            # prefix '@' to match name1
+            tname1 = '@' + tname1
 
         if eof:
             # EOF
             break
 
-        # prefix '@' to match name1
-        tname1 = '@' + tname1
         assert (tname1 == name1)
 
         # e.g. "1"

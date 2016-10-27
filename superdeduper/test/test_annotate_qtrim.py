@@ -62,6 +62,8 @@ COMMAND_FILE_PARAMS = ['<input.fastq>', '<in1.fastq>', '<in2.fastq>']
         'annotate-qtrim 03_low_qual_3prime.rmumi.rmadapt.qtrim.fq',
         'annotate-qtrim 03_low_qual_5prime_R1.rmumi.rmadapt.qtrim.fq 03_low_qual_5prime_R2.rmumi.rmadapt.qtrim.fq',
         'annotate-qtrim 03_low_qual_5prime.rmumi.rmadapt.qtrim.fq',
+        'annotate-qtrim 07_several_low_qual_R1.rmumi.rmadapt.qtrim.fq 07_several_low_qual_R2.rmumi.rmadapt.qtrim.fq',
+        'annotate-qtrim 07_several_low_qual.rmumi.rmadapt.qtrim.fq',
     ])
 def commands(request):
     """This is where the magic happens.
