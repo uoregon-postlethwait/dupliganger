@@ -41,6 +41,7 @@ Options:
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 # SuperDeDuper imports
 from superdeduper.constants import *
@@ -321,8 +322,7 @@ def run(write_func, outdir, compress, opt_trimlog, input_files):
         tmpf_finish(tmp_out1)
 
     else:
-        raise ControlFlowException, \
-                """ERR911: Not possible to be here."""
+        raise ControlFlowException("""ERR911: Not possible to be here.""")
 
     return out_files
 

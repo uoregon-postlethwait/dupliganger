@@ -42,6 +42,7 @@ Options:
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 # SuperDeDuper imports
 from superdeduper.constants import *
@@ -102,7 +103,7 @@ def pe_remove_adapters(in1, in2, out1, out2, short1, short2, out_log, adapter1,
 
     cmd = "cutadapt {} {} {} {} {}".format(cutadapt_args, adapters, ins, outs,
             too_short)
-    print "Running:\n\t{}".format(cmd)
+    print("Running:\n\t{}".format(cmd))
     cmd = shlex.split(cmd)
 
     with open(out_log, 'w') as f:
@@ -131,7 +132,7 @@ def se_remove_adapter(in1, out1, short1, out_log, adapter1, cutadapt_args):
 
     cmd = "cutadapt {} {} {} {} {}".format(cutadapt_args, adapters, ins, outs,
             too_short)
-    print "Running:\n\t{}".format(cmd)
+    print("Running:\n\t{}".format(cmd))
     cmd = shlex.split(cmd)
 
     with open(out_log, 'w') as f:

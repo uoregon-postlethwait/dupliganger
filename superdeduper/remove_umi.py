@@ -168,9 +168,8 @@ def create_annotated_files_from_bam(fp_extract_umis, in1, out1, out2):
 
         # Confirm names are same.
         if name1[:neg_index] != name2[:neg_index]:
-            raise ParseException, \
-                    """Mismatched read names: {}, {}""".format(name1,
-                            name2)
+            raise ParseException(
+                    """Mismatched read names: {}, {}""".format(name1, name2))
 
         out1.write("{}\n{}\n+\n{}\n".format(name1_anno, seq1[clip_len1:],
             qual1[clip_len1:]))
@@ -241,9 +240,8 @@ def create_annotated_files_from_fastq(fp_extract_umis, in1, in2, out1, out2,
 
         # Confirm names are same.
         if name1[:neg_index] != name2[:neg_index]:
-            raise ParseException, \
-                    """Mismatched read names: {}, {}""".format(name1,
-                            name2)
+            raise ParseException(
+                    """Mismatched read names: {}, {}""".format(name1, name2))
 
         out1.write(record1)
         out2.write(record2)
@@ -369,8 +367,8 @@ def parse_args(args):
         else:
             fp_extract_umi = extract_single_umi_bioo
     else:
-        raise CannotContinueException, \
-                """Kit {} is not supported.""".format(kit)
+        raise CannotContinueException(
+                """Kit {} is not supported.""".format(kit))
 
     # Figure out which function to use to write to output file.
     num_threads = args['--threads']

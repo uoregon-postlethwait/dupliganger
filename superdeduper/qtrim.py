@@ -40,6 +40,7 @@ Options:
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 # SuperDeDuper imports
 from superdeduper.constants import *
@@ -102,8 +103,7 @@ def qtrim(num_threads, phred, trimmomatic_args, *input_output_files):
         outs = "{} {}".format(out1, unpaired1)
         mode = 'SE'
     else:
-        raise ControlFlowException, \
-                """ERR911: Not possible to be here."""
+        raise ControlFlowException("""ERR911: Not possible to be here.""")
 
     phred = "-phred{}".format(phred)
     trimlog_str = "-trimlog {}".format(trim_log)
@@ -112,7 +112,7 @@ def qtrim(num_threads, phred, trimmomatic_args, *input_output_files):
             os.path.expanduser(FIXME_TRIMMOMATIC_SRC), mode, threads, phred,
             trimlog_str, ins, outs, trimmomatic_args)
 
-    print "Running:\n\t{}".format(cmd)
+    print("Running:\n\t{}".format(cmd))
     cmd = shlex.split(cmd)
 
     with open(out_log, 'w') as f:
@@ -141,8 +141,8 @@ def parse_args(args):
 
     phred = args['--phred']
     if phred not in ('33', '64'):
-        raise CannotContinueException, \
-                """Phred score {} is not supported.""".format(phred)
+        raise CannotContinueException(
+                """Phred score {} is not supported.""".format(phred))
     phred = int(phred)
 
     trimmomatic_args = args['--trimmomatic'].strip("'").strip('"').strip("'")
@@ -197,8 +197,7 @@ def run(num_threads, outdir, compress, phred, trimmomatic_args, input_files):
         tmpf_finish(tmp_out1)
 
     else:
-        raise ControlFlowException, \
-                """ERR911: Not possible to be here."""
+        raise ControlFlowException("""ERR911: Not possible to be here.""")
 
     return out_files
 

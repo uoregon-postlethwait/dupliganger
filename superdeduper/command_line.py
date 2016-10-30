@@ -13,6 +13,7 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 import sys
 
@@ -30,9 +31,9 @@ def main_wrapper():
 
     # Check python version first.
     if sys.version_info < VERSION_PYTHON_MINIMUM:
-        print "SuperDeDuper requires Python {0} or later.  You are running {1}.".format(
+        print("SuperDeDuper requires Python {0} or later.  You are running {1}.".format(
             '.'.join([str(i) for i in VERSION_PYTHON_MINIMUM]),
-            '.'.join([str(i) for i in sys.version_info[0:3]]))
+            '.'.join([str(i) for i in sys.version_info[0:3]])))
         sys.exit(1)
     if sys.version_info >= (3,):
         print "SuperDeDuper doesn't support Python 3."
