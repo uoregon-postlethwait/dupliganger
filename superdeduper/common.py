@@ -14,6 +14,8 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from builtins import range
+from builtins import object
 
 # SuperDeDuper imports
 try:
@@ -36,6 +38,9 @@ import contextlib
 import os
 import subprocess
 import shlex
+
+# For is_gzipped
+import io
 
 # For tmpfile names
 import string
@@ -188,29 +193,34 @@ def pgopen(num_threads, filename):
         with pgopen(file) as f:
             # do stuff...
     """
+    # Determine if gzipped
     gzipped = False
-    with open(filename, 'r') as f:
+    with io.open(filename, mode='rb') as f:
         # Is this a gzipped file? Check magic number.
         magic_num = f.read(2)
         f.seek(0)
 
-        if magic_num == '\x1f\x8b':
+        if magic_num == b'\x1f\x8b':
             gzipped = True
-        else:
-            # This is not a gzipped file.
-            yield f
+
     if gzipped:
         # This is a gzipped file.
         if num_threads > 1 and which('pigz'):
             # pigz read
             cmd = shlex.split('unpigz -p {} -c {}'.format(num_threads, filename))
-            with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                    universal_newlines=True).stdout as f:
                 yield f
         else:
             # gzip read
             cmd = shlex.split('gunzip -c {}'.format(filename))
-            with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                    universal_newlines=True).stdout as f:
                 yield f
+    else:
+        # This is not a gzipped file.
+        with io.open(filename, mode='rt', encoding='latin-1') as f:
+            yield f
 
 @contextlib.contextmanager
 def bamopen(filename, silence_broken_pipe_errors=False):
@@ -234,10 +244,11 @@ def bamopen(filename, silence_broken_pipe_errors=False):
         import os
         DEVNULL = open(os.devnull, 'wb')
         with subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                stderr=DEVNULL).stdout as f:
+                stderr=DEVNULL, universal_newlines=True).stdout as f:
             yield f
     else:
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout as f:
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                universal_newlines=True).stdout as f:
             yield f
 
 @contextlib.contextmanager
@@ -512,7 +523,7 @@ def tmpf_start(*filenames):
             filename = filename[:-3]
         chars = string.ascii_lowercase + string.digits
         size = TMP_FILE_NAME_RANDOM_STR_SIZE
-        random_str = ''.join(random.choice(chars) for _ in xrange(size))
+        random_str = ''.join(random.choice(chars) for _ in range(size))
         tmp_filename = "{}.tmp.{}".format(filename, random_str)
         if is_gzipped:
             tmp_filename += '.gz'
@@ -551,11 +562,11 @@ def is_gzipped(filename):
     Returns:
         bool: True if it is a gzipped file, False otherwise.
     """
-    with open(filename, 'r') as f:
+    with io.open(filename, mode='rb') as f:
         # Is this a gzipped file? Check magic number.
         magic_num = f.read(2)
 
-    return magic_num == '\x1f\x8b'
+    return magic_num == b'\x1f\x8b'
 
 def is_bam(filename):
     """Determines if the file is a BAM file or not. Uses magic number.
@@ -568,8 +579,7 @@ def is_bam(filename):
     try:
         with gzip.open(filename, 'rb') as f:
             magic_num = f.read(3)
-            f.seek(0)
-            if magic_num == 'BAM':
+            if magic_num == b'BAM':
                 return True
             else:
                 return False

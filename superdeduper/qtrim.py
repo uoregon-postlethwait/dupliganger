@@ -135,7 +135,7 @@ def parse_args(args):
         fin = os.path.expanduser(args['<input.fastq>'])
         input_files = [fin]
 
-    num_threads = args['--threads']
+    num_threads = int(args['--threads'])
     compress = args['--compress']
     outdir = args_to_out_dir(args)
 

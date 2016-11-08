@@ -31,7 +31,7 @@ Options:
                           specified, output FASTQ files will be compressed with
                           pigz -p <n>; otherwise, they will be left
                           uncompressed (as it simply takes too long to compress
-                          with just gzip).
+                          with just gzip) [default: 1].
 """
 
 ###############
@@ -42,6 +42,7 @@ Options:
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from builtins import range
 
 # SuperDeDuper imports
 from superdeduper.constants import *
@@ -63,6 +64,9 @@ except ImportError:
 
 # For function partials
 import functools
+
+# For inspecting gzipped files
+import gzip
 
 
 #################
@@ -91,9 +95,9 @@ def create_annotated_files(in1, in2, trim_log, out1, out2, has_index):
     eof = False
     while True:
         name1, seq1, _, qual1 = \
-                (in1.readline().rstrip() for i in xrange(4))
+                (in1.readline().rstrip() for i in range(4))
         name2, seq2, _, qual2 = \
-                (in2.readline().rstrip() for i in xrange(4))
+                (in2.readline().rstrip() for i in range(4))
 
         if not name1 or not name2:
             break
@@ -180,7 +184,7 @@ def create_annotated_file(in1, trim_log, out1, has_index):
     eof = False
     while True:
         name1, seq1, _, qual1 = \
-                (in1.readline().rstrip() for i in xrange(4))
+                (in1.readline().rstrip() for i in range(4))
 
         if not name1:
             break
@@ -245,7 +249,7 @@ def parse_args(args):
 
     # Figure out which function to use to write to output file.
     compress = args['--compress']
-    num_threads = args['--threads']
+    num_threads = int(args['--threads'])
     if num_threads > 1 and which('pigz') and compress:
         # return a partial for pigzwrite
         write_func = functools.partial(pigzwrite, num_threads)

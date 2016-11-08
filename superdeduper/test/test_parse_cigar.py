@@ -1,3 +1,4 @@
+from builtins import object
 # Copyright (C) 2016 Jason Sydes
 #
 # This file is part of SuperDeDuper.
@@ -15,7 +16,7 @@ from pytest import fixture
 from superdeduper.sam import parse_cigar
 from superdeduper.common import HardClippingNotSupportedException
 
-class TestParseCigar:
+class TestParseCigar(object):
     """Test parse_cigar()."""
 
     #############

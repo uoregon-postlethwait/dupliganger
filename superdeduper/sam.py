@@ -13,6 +13,8 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from builtins import str
+from builtins import object
 
 # SuperDeDuper imports
 from superdeduper.constants import *

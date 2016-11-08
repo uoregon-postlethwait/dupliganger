@@ -18,6 +18,9 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 
 # SuperDeDuper imports
 from superdeduper.annotate_qtrim import __doc__
@@ -46,7 +49,7 @@ OUTFILE_DIR = os.path.join(BASE_OUTFILE_DIR, COMMAND_BEING_TESTED)
 # e.g. 'superdeduper/test/files/annotate_qtrim/in'
 INFILE_DIR = os.path.join(BASE_FILES_DIR, COMMAND_BEING_TESTED, 'in')
 
-# Taken from the docstring of remove-adapter
+# Taken from the docstring of annotate-qtrim
 COMMAND_FILE_PARAMS = ['<input.fastq>', '<in1.fastq>', '<in2.fastq>']
 
 
@@ -64,6 +67,8 @@ COMMAND_FILE_PARAMS = ['<input.fastq>', '<in1.fastq>', '<in2.fastq>']
         'annotate-qtrim 03_low_qual_5prime.rmumi.rmadapt.qtrim.fq',
         'annotate-qtrim 07_several_low_qual_R1.rmumi.rmadapt.qtrim.fq 07_several_low_qual_R2.rmumi.rmadapt.qtrim.fq',
         'annotate-qtrim 07_several_low_qual.rmumi.rmadapt.qtrim.fq',
+        'annotate-qtrim 08_gzip_infile_R1.rmumi.rmadapt.qtrim.fq.gz 08_gzip_infile_R2.rmumi.rmadapt.qtrim.fq.gz',
+        'annotate-qtrim 08_gzip_infile.rmumi.rmadapt.qtrim.fq.gz',
     ])
 def commands(request):
     """This is where the magic happens.
@@ -73,7 +78,7 @@ def commands(request):
     params.
 
     In this fixture, we are passing commandline strings to superdeduper
-    remove-adapter.
+    annotate-qtrim.
 
     See also "fix_paths()", which converts the simple filenames above to
     relative paths appropriate for this.
@@ -81,8 +86,8 @@ def commands(request):
     yield request.param
 
 
-class TestRemoveAdapter:
-    """Test remove-adapter."""
+class TestAnnotateQtrim(object):
+    """Test annotate-qtrim."""
 
     #############
     ### Tests ###

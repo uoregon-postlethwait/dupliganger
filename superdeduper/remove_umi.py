@@ -36,7 +36,7 @@ Options:
                           specified, output FASTQ files will be compressed with
                           pigz -p <n>; otherwise, they will be left
                           uncompressed (as it simply takes too long to compress
-                          with just gzip).
+                          with just gzip) [default: 1].
     --force-paired        Do not autodetect whether paired-end vs single-end,
                           instead force paired-end. Helpful fail safe if you
                           believe you have paired end data.
@@ -49,6 +49,7 @@ Options:
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from builtins import range
 
 # version
 from superdeduper._version import __version__
@@ -67,6 +68,9 @@ import os
 
 # For writing gzipped files
 import gzip
+
+# For checking presence of illumina index under python 2/3.
+import io
 
 # For shell-like "which()"
 try:
@@ -194,9 +198,9 @@ def create_annotated_files_from_fastq(fp_extract_umis, in1, in2, out1, out2,
     # Walk the file and create a new annotated file
     while True:
         name1, seq1, junk, qual1 = \
-                (in1.readline().rstrip() for i in xrange(4))
+                (in1.readline().rstrip() for i in range(4))
         name2, seq2, junk, qual2 = \
-                (in2.readline().rstrip() for i in xrange(4))
+                (in2.readline().rstrip() for i in range(4))
 
         if not name1:
             # EOF
@@ -261,7 +265,7 @@ def create_annotated_file_from_fastq(fp_extract_umi, in1, out1, has_index):
     # Walk the file and create a new annotated file
     while True:
         name1, seq1, junk, qual1 = \
-                (in1.readline().rstrip() for i in xrange(4))
+                (in1.readline().rstrip() for i in range(4))
 
         if not name1:
             # EOF
@@ -371,7 +375,7 @@ def parse_args(args):
                 """Kit {} is not supported.""".format(kit))
 
     # Figure out which function to use to write to output file.
-    num_threads = args['--threads']
+    num_threads = int(args['--threads'])
     compress = args['--compress']
     if num_threads > 1 and which('pigz') and compress:
         # return a partial for pigzwrite
@@ -460,10 +464,10 @@ def run(fp_extract_umi, fp_anno, fp_write, outdir, compress, force_paired,
         #       @NS500451:139:H5TV5AFXX:1:11101:3928:1111
         # Detect.
         if is_gzipped(input_files[0]):
-            with gzip.open(input_files[0], 'rb') as in1:
+            with gzip.open(input_files[0], mode='rt') as in1:
                 first_line = in1.readline()
         else:
-            with open(input_files[0], 'r') as in1:
+            with io.open(input_files[0], mode='r', encoding='latin-1') as in1:
                 first_line = in1.readline()
         has_index = True if len(first_line.split()) > 1 else False
 

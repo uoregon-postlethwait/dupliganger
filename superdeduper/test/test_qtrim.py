@@ -18,6 +18,9 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 
 # SuperDeDuper imports
 from superdeduper.qtrim import __doc__
@@ -46,7 +49,7 @@ OUTFILE_DIR = os.path.join(BASE_OUTFILE_DIR, COMMAND_BEING_TESTED)
 # e.g. 'superdeduper/test/files/qtrim/in'
 INFILE_DIR = os.path.join(BASE_FILES_DIR, COMMAND_BEING_TESTED, 'in')
 
-# Taken from the docstring of remove-adapter
+# Taken from the docstring of qtrim
 COMMAND_FILE_PARAMS = ['<input.fastq>', '<in1.fastq>', '<in2.fastq>']
 
 
@@ -73,7 +76,7 @@ def commands(request):
     params.
 
     In this fixture, we are passing commandline strings to superdeduper
-    remove-adapter.
+    qtrim.
 
     See also "fix_paths()", which converts the simple filenames above to
     relative paths appropriate for this.
@@ -81,8 +84,8 @@ def commands(request):
     yield request.param
 
 
-class TestRemoveAdapter:
-    """Test remove-adapter."""
+class TestQtrim(object):
+    """Test qtrim."""
 
     #############
     ### Tests ###

@@ -13,6 +13,7 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from builtins import chr
 
 ################
 ### Defaults ###

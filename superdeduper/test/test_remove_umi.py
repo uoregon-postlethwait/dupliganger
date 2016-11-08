@@ -18,6 +18,9 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 
 # SuperDeDuper imports
 from superdeduper.remove_umi import __doc__
@@ -46,7 +49,7 @@ OUTFILE_DIR = os.path.join(BASE_OUTFILE_DIR, COMMAND_BEING_TESTED)
 # e.g. 'superdeduper/test/files/remove_umi/in'
 INFILE_DIR = os.path.join(BASE_FILES_DIR, COMMAND_BEING_TESTED, 'in')
 
-# Taken from the docstring of remove-adapter
+# Taken from the docstring of remove-umi
 COMMAND_FILE_PARAMS = ['<input.fastq>', '<in1.fastq>', '<in2.fastq>',
         '<input.bam>']
 
@@ -61,6 +64,8 @@ COMMAND_FILE_PARAMS = ['<input.fastq>', '<in1.fastq>', '<in2.fastq>',
         'remove-umi 02_no_trailing_slash.fq',
         'remove-umi 06_pe_bam.bam',
         'remove-umi 06_se_bam.bam',
+        'remove-umi 08_gzip_infile_R1.fq.gz 08_gzip_infile_R2.fq.gz',
+        'remove-umi 08_gzip_infile.fq.gz',
     ])
 def commands(request):
     """This is where the magic happens.
@@ -70,7 +75,7 @@ def commands(request):
     params.
 
     In this fixture, we are passing commandline strings to superdeduper
-    remove-adapter.
+    remove-umi.
 
     See also "fix_paths()", which converts the simple filenames above to
     relative paths appropriate for this.
@@ -78,8 +83,8 @@ def commands(request):
     yield request.param
 
 
-class TestRemoveAdapter:
-    """Test remove-adapter."""
+class TestRemoveUmi(object):
+    """Test remove-umi."""
 
     #############
     ### Tests ###

@@ -10,7 +10,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 # List of required packages for python 2 and 3.
-install_requires=['docopt', 'lmdb', 'distance']
+install_requires=['docopt', 'lmdb', 'distance', 'future']
 
 # List of backported required packages for python2.
 if sys.version_info < (3,0):
@@ -22,7 +22,7 @@ if sys.version_info < (3,0):
 
 setup(
     name='superdeduper',
-    version = file("VERSION").readline().rstrip(),
+    version = open("VERSION").readline().rstrip(),
 
     description='An application to quantify and annotate miRNA expression.',
     long_description=long_description,
