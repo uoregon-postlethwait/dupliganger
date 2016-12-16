@@ -73,7 +73,7 @@ import subprocess
 #################
 
 SDD_COMMAND_MODULES = ['remove_umi', 'remove_adapter', 'qtrim',
-        'annotate_qtrim', 'dedup', 'build_read_db', 'build_location_db',
+        'annotate_qtrim', 'prep', 'dedup', 'build_read_and_loc_dbs',
         'build_dup_db']
 
 #################

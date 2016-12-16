@@ -37,10 +37,11 @@ Options:
 ### Imports ###
 ###############
 
-# Python 3 imports
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# Python 2/3 compatibility imports
+from __future__ import absolute_import, division, print_function
+
+# NOTE: Do *not* do the following:
+# from builtins import str, chr, object
 
 # SuperDeDuper imports
 from superdeduper.constants import *
@@ -56,12 +57,6 @@ from docopt import docopt
 
 # For converting ~ to full path
 import os
-
-# # For shell-like "which()"
-try:
-    from shutil import which
-except ImportError:
-    from whichcraft import which
 
 # For external command execution
 import subprocess, shlex
@@ -116,7 +111,7 @@ def qtrim(num_threads, phred, trimmomatic_args, *input_output_files):
     cmd = shlex.split(cmd)
 
     with open(out_log, 'w') as f:
-        p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, bufsize=-1)
         retval = p.wait()
     if retval > 0:
         raise ExecutionException(

@@ -39,10 +39,11 @@ Options:
 ### Imports ###
 ###############
 
-# Python 3 imports
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# Python 2/3 compatibility imports
+from __future__ import absolute_import, division, print_function
+
+# NOTE: Do *not* do the following:
+# from builtins import str, chr, object
 
 # SuperDeDuper imports
 from superdeduper.constants import *
@@ -107,7 +108,7 @@ def pe_remove_adapters(in1, in2, out1, out2, short1, short2, out_log, adapter1,
     cmd = shlex.split(cmd)
 
     with open(out_log, 'w') as f:
-        p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, bufsize=-1)
         retval = p.wait()
     if retval > 0:
         raise ExecutionException(
@@ -136,7 +137,7 @@ def se_remove_adapter(in1, out1, short1, out_log, adapter1, cutadapt_args):
     cmd = shlex.split(cmd)
 
     with open(out_log, 'w') as f:
-        p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, bufsize=-1)
         retval = p.wait()
     if retval > 0:
         raise ExecutionException(

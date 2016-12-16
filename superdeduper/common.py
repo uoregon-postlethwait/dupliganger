@@ -10,12 +10,17 @@
 #
 # Written by Jason Sydes.
 
-# Python 3 imports
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# Python 2/3 compatibility imports
+from __future__ import absolute_import, division, print_function
+
+# NOTE: Do *not* do the following:
+# from builtins import str, chr, object
+# py-lmdb uses bytes() for py3 and str() for py2.
+# This package has different code for py2 and py3.
+# And importing that future 'object' has a bug that screws up __slots__ in
+# py2 (causes different behavior than in py3).
+
 from builtins import range
-from builtins import object
 
 # SuperDeDuper imports
 try:
@@ -55,6 +60,10 @@ try:
 except ImportError:
     from whichcraft import which
 
+# For memory usage.
+import psutil
+import resource
+
 ##################
 ### Exceptions ###
 ##################
@@ -75,7 +84,8 @@ class ParseException(Exception):
     """Something went wrong with parsing something."""
 class HardClippingNotSupportedException(Exception):
     """Encountered sam file hard-clipping, which is not supported."""
-
+class UnexpectedExtensionException(Exception):
+    """Extension passed was not in expected extensions."""
 
 #################
 ### Functions ###
@@ -208,18 +218,63 @@ def pgopen(num_threads, filename):
         if num_threads > 1 and which('pigz'):
             # pigz read
             cmd = shlex.split('unpigz -p {} -c {}'.format(num_threads, filename))
-            with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=-1,
                     universal_newlines=True).stdout as f:
                 yield f
         else:
             # gzip read
             cmd = shlex.split('gunzip -c {}'.format(filename))
-            with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+            with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=-1,
                     universal_newlines=True).stdout as f:
                 yield f
     else:
         # This is not a gzipped file.
-        with io.open(filename, mode='rt', encoding='latin-1') as f:
+        with asciiopen(filename) as f:
+            yield f
+
+@contextlib.contextmanager
+def asciiopen(filename):
+    """Context manager to open an ASCII encoded file across Python 2/3.
+
+    Usage:
+        with asciiopen(file) as f:
+            # do stuff...
+    """
+    # So, basically, you came to the conclusion that you probably just
+    # want to write a function 'asciiopen' which just opens up a file
+    # differently depending on whether you're running python 2 or 3.
+    # Why?
+    # I fought with io.open a bunch, and here's how it behaves:
+    #
+    # Python 2:
+    #   >>> type(io.open('ACTTGATG_R1.3300.fq', mode='r', encoding='ascii').readline())
+    #   <type 'unicode'>
+    # Python 3
+    #   >>> type(io.open('ACTTGATG_R1.3300.fq', mode='r', encoding='ascii').readline())
+    #   <class 'str'>
+    #
+    # The alternative is to read everything in as bytes, but python 3 is
+    # weird about that as well:
+    #   >>> a = io.open('ACTTGATG_R1.3300.fq', mode='rb')
+    #   >>> b = a.readline()
+    #   >>> b
+    #   b'@D00597:180:C7NMDANXX:6:1101:1184:33231/1\n'
+    #   >>> ascii(b)
+    #   "b'@D00597:180:C7NMDANXX:6:1101:1184:33231/1\\n'"
+    #
+    # In the end, it's probably just easier to write an asciiopen()
+    # function where in python3 it is:
+    #   io.open('ACTTGATG_R1.3300.fq', mode='r', encoding='ascii'
+    # and in python2 it is just the old "open".  Definitely do NOT do:
+    #       from builtins import open
+    #
+    # There is perhaps a better way to do all this.  For now, this works.
+    #
+    if sys.version_info.major == 2:
+        with open(filename, 'r') as f:
+            yield f
+    elif sys.version_info.major == 3:
+        with io.open(filename, mode='r', encoding='ascii') as f:
             yield f
 
 @contextlib.contextmanager
@@ -238,17 +293,37 @@ def bamopen(filename, silence_broken_pipe_errors=False):
             reading all the output, samtools will complain of a broken pipe.
     """
 
-    # gzip read
     cmd = shlex.split('samtools view {}'.format(filename))
     if silence_broken_pipe_errors:
         import os
         DEVNULL = open(os.devnull, 'wb')
-        with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=-1,
                 stderr=DEVNULL, universal_newlines=True).stdout as f:
             yield f
     else:
         with subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                universal_newlines=True).stdout as f:
+                bufsize=-1, universal_newlines=True).stdout as f:
+            yield f
+
+@contextlib.contextmanager
+def sambamopen(filename):
+    """Context manager to open a SAM or BAM file for reading only.
+
+    Usage:
+        with sambamopen(file) as f:
+            # do stuff...
+
+    Args:
+        filename (str): The filename to examine.
+    """
+
+    cmd = shlex.split('samtools view {}'.format(filename))
+    if is_bam(filename):
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                bufsize=-1, universal_newlines=True).stdout as f:
+            yield f
+    else:
+        with pgopen(1, filename) as f:
             yield f
 
 @contextlib.contextmanager
@@ -261,7 +336,7 @@ def gzwrite(filename):
     """
     with open(filename, 'wb') as f:
         cmd = shlex.split('gzip -c')
-        z = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=f)
+        z = subprocess.Popen(cmd, stdin=subprocess.PIPE, bufsize=-1, stdout=f)
         try:
             yield z.stdin
         finally:
@@ -278,7 +353,7 @@ def pigzwrite(num_threads, filename):
     """
     with open(filename, 'wb') as f:
         cmd = shlex.split('pigz -p {}'.format(num_threads))
-        z = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=f)
+        z = subprocess.Popen(cmd, stdin=subprocess.PIPE, bufsize=-1, stdout=f)
         try:
             yield z.stdin
         finally:
@@ -319,7 +394,7 @@ def file_root(filename, expected_ext=None):
 
     if expected_ext:
         if ext not in expected_ext:
-            raise CannotContinueException(
+            raise UnexpectedExtensionException(
                     "Extension {} was in not expected extensions {}".format(
                         ext, expected_ext))
 
@@ -429,6 +504,35 @@ def filename_in_to_out_fqgz(filename, suffix, gzip, outdir):
     f = "{}.{}.{}".format(root, suffix, ext)
     return os.path.join(outdir, f)
 
+def filename_in_to_out_sambam(filename, suffix, outdir):
+    """Converts a BAM or SAM filename to new output filename with suffix.
+
+    Args:
+        filename (str): Name of file to transform.
+        suffix (str): Suffix to add to filename.
+        outdir (str): Directy to place filename in.
+
+    Returns:
+        str: The new filename.
+
+    >>> filename_in_to_out_sambam('/path/to/file', 'dups_removed.sam', 'outdir')
+    'outdir/file.dups_removed.sam'
+    >>> filename_in_to_out_sambam('/path/to/file.sam', 'dups_removed.sam', 'outdir')
+    'outdir/file.dups_removed.sam'
+    >>> filename_in_to_out_sambam('/path/to/file.bam', 'dups_removed.sam', 'outdir')
+    'outdir/file.dups_removed.sam'
+    >>> filename_in_to_out_sambam('/path/to/file', 'dups_flagged.sam', 'outdir')
+    'outdir/file.dups_flagged.sam'
+    """
+    try:
+        dirname, root, junk = file_root(filename, ('sam', 'bam'))
+    except(UnexpectedExtensionException):
+        # Doesn't look like this file has a bam or sam extension
+        dirname, root = os.path.split(os.path.expanduser(filename))
+
+    f = "{}.{}".format(root, suffix)
+    return os.path.join(outdir, f)
+
 def filename_in_bam_to_out_fqgz(filename, suffix, gzip, paired, outdir):
     """Converts a BAM filename to new FASTQ single-end OR paired-end
     filename(s) with suffix, optionally gzipped.
@@ -517,6 +621,10 @@ def tmpf_start(*filenames):
     """
     tmp_filenames = []
     for filename in filenames:
+        if filename == os.devnull:
+            # If you want /dev/null, it's not very temporary in nature.
+            tmp_filenames.append(os.devnull)
+            continue
         is_gzipped = False
         if filename[-3:] == '.gz':
             is_gzipped = True
@@ -541,6 +649,9 @@ def tmpf_finish(*tmp_filenames):
         tmp_filenames ([str]): The temporary name of the file(s).
     """
     for tmp_filename in tmp_filenames:
+        if tmp_filename == os.devnull:
+            # If you want /dev/null, it's not very temporary in nature.
+            continue
         is_gzipped = False
         if tmp_filename[-3:] == '.gz':
             is_gzipped = True
@@ -606,6 +717,47 @@ def is_paired_bam(filename):
 
     return name1 == name2
 
+def setup_report_db():
+    """Sets up a key-value pair "Report Database" to track metrics."""
+
+    report_db = {}
+    for metric in REPORT_DB_COUNT_METRICS:
+        report_db[metric] = 0
+    for metric in REPORT_DB_8_UMI_DIST_COUNT_METRICS:
+        for i in range(1,9):
+            report_db["{}{}".format(metric, i)] = 0
+
+    return report_db
+
+def memory_info(report_in_MBytes=False):
+    """Report current memory used and maximum RSS memory consumed.  Results are
+    in 'bytes' by default; passing 'report_in_MBytes' returns results in
+    megabytes.
+
+    Returns:
+        (float, float): A two-tuple.  First member is current memory used,
+            second member is maximum memory used.
+    """
+
+    # Currently used memory.
+    process = psutil.Process(os.getpid())
+    try:
+        # py2
+        curr_mem = process.get_memory_info().rss
+    except(AttributeError):
+        # py3
+        curr_mem = process.memory_info().rss
+
+    # Maximum memory (RSS) used.
+    if sys.platform == 'darwin':
+        max_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    else:
+        max_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+
+    if report_in_MBytes:
+        return (curr_mem / 1024**2, max_mem / 1024**2)
+    else:
+        return (curr_mem, max_mem)
 
 ###############
 ### Classes ###
@@ -614,7 +766,6 @@ def is_paired_bam(filename):
 class SomeSharedClass(object):
     """Some shared class that's useful."""
     pass
-
 
 class Progress(object):
     """A simple progress meter printing to STDERR and superdeduper.log.
@@ -678,6 +829,5 @@ class Progress(object):
         if self.step:
             msg_beg += '\n'
         logging.info(msg_beg + msg_mid + msg_end)
-
 
 # vim: softtabstop=4:shiftwidth=4:expandtab

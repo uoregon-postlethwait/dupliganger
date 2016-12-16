@@ -13,7 +13,13 @@
 # Python 3 imports
 from __future__ import absolute_import
 from __future__ import division
-from builtins import chr
+
+# NOTE: Do *not* do the following:
+# from builtins import str
+# from builtins import chr
+# py-lmdb uses bytes() for py3 and str() for py2.
+# Doing any of the above starts turning things into unicode.  We want native
+# strings.
 
 ################
 ### Defaults ###
@@ -48,7 +54,39 @@ UMIS_BIOO = ['AACGCCAT', 'AAGGTACG', 'AATTCCGG', 'ACACAGAG', 'ACACTCAG',
         'TGAGAGTG', 'TGAGTGAG', 'TGCTTGGA', 'TGGAGTAG', 'TGTGTGTG', 'TTCGCCTA',
         'TTCGTTCG']
 
-# The number
+# Superdeduper defined SAM TAGs
+SAM_TAG_READ1_HAMMING_DIST_UMI =                                    'd1:i:'
+SAM_TAG_READ2_HAMMING_DIST_UMI =                                    'd2:i:'
+SAM_TAG_READ1_NUM_CLOSEST_UMIS =                                    'n1:i:'
+SAM_TAG_READ2_NUM_CLOSEST_UMIS =                                    'n2:i:'
+SAM_TAG_READ1_CLOSEST_UMI      =                                    'c1:i:'
+SAM_TAG_READ2_CLOSEST_UMI      =                                    'c2:i:'
+
+# ReportDB metrics
+
+LOG_NUM_LOCATIONS =                                         'num_locations'
+LOG_NUM_UNIQUE_UMI_PAIR_LOCATION_COMBINATIONS = (
+                                'num_unique_umi_pair_location_combinations')
+LOG_NUM_READ_GROUPS =                                     'num_read_groups'
+LOG_NUM_DUP_GROUPS =                                       'num_dup_groups'
+LOG_NUM_READ_GROUPS_WITH_UMI_ERROR =       'num_read_groups_with_umi_error'
+LOG_NUM_READ_GROUPS_WITH_UMI_ERROR_DIST = (
+                                      'num_read_groups_with_umi_error_dist')
+LOG_NUM_READ_GROUPS_REJECTED_DUE_TO_UMI_ERROR_DIST = (
+                           'num_read_groups_rejected_due_to_umi_error_dist')
+# ReportDB
+REPORT_DB_COUNT_METRICS = [
+    LOG_NUM_LOCATIONS,
+    LOG_NUM_UNIQUE_UMI_PAIR_LOCATION_COMBINATIONS,
+    LOG_NUM_READ_GROUPS,
+    LOG_NUM_DUP_GROUPS,
+    LOG_NUM_READ_GROUPS_WITH_UMI_ERROR, ]
+REPORT_DB_8_UMI_DIST_COUNT_METRICS = [
+    LOG_NUM_READ_GROUPS_WITH_UMI_ERROR_DIST,
+    LOG_NUM_READ_GROUPS_REJECTED_DUE_TO_UMI_ERROR_DIST, ]
+
+
+# Pad the read_group_id with zeros until you have this many digits.
 READ_GROUP_ID_DIGITS =                                                   10
 ## Delimiters for the read name annotations ##
 # Delimiter to separate read names from their annotations
@@ -64,7 +102,7 @@ DELIM_ANNO_ELEMENT = ','
 # Delimiter to separate SAM file fields
 DELIM_SAM_FIELD = '\t'
 
-# Delimiter to separate elements of a list in LMDB
+# Delimiter to separate elements of a list in a SimpleBucketLmdb
 # Note: chr(30) is ACSII "record separator"
 DELIM_SAM_LIST_LMDB = chr(30)
 
@@ -86,7 +124,8 @@ LMDB_DB_SIZE = 1024**4
 LMDB_MAX_DBS = 10
 RECORDS_PER_TXN = 1000000
 RECORDS_PER_TXN = 100000
-RECORDS_PER_TXN = 5000000
+# RECORDS_PER_TXN = 1
+# RECORDS_PER_TXN = 5000000
 # RECORDS_PER_TXN = 31
 # RECORDS_PER_TXN = 1
 # RECORDS_PER_TXN = 3
@@ -105,8 +144,16 @@ SUFFIX_QTRIM_UNPAIRED =                                          'unpaired'
 # After --annotate-qtrim umi is run.
 SUFFIX_ANNOTATE_QTRIM =                                              'anno'
 
+# A 'PCR or optical duplicate' is marked with 0x400 in the FLAG field of SAM
+# files.
+SAM_FORMAT_FLAG_DUPLICATE = 0x400
+
 # Number of characters in the random string of
 TMP_FILE_NAME_RANDOM_STR_SIZE =                                           6
+
+# Default random seed
+RANDOM_SEED =                                                'Little Ashes'
+
 
 # SuperDeDuper log filename
 LOG_FILENAME =                                           'superdeduper.log'

@@ -10,10 +10,10 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 # List of required packages for python 2 and 3.
-install_requires=['docopt', 'lmdb', 'distance', 'future']
+install_requires=['docopt', 'lmdb', 'distance', 'future', 'psutil']
 
 # List of backported required packages for python2.
-if sys.version_info < (3,0):
+if sys.version_info[0] == 2:
     install_requires += [
             # For lru_cache
             'functools32',

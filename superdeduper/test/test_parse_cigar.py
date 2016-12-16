@@ -1,4 +1,3 @@
-from builtins import object
 # Copyright (C) 2016 Jason Sydes
 #
 # This file is part of SuperDeDuper.

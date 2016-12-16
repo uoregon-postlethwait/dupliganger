@@ -14,9 +14,15 @@
 ### Imports ###
 ###############
 
-# Python 3 imports
-from __future__ import absolute_import
-from __future__ import division
+# Python 2/3 compatibility imports
+from __future__ import absolute_import, division, print_function
+
+# NOTE: Do *not* do the following:
+# from builtins import str, chr, object
+# py-lmdb uses bytes() for py3 and str() for py2.
+# This package has different code for py2 and py3.
+# And importing that future 'object' has a bug that screws up __slots__ in
+# py2 (causes different behavior than in py3).
 
 # SuperDeDuper imports
 
@@ -32,6 +38,7 @@ import shutil
 #################
 
 LAST_RUN_DIR            = 'last_run'
+IN_DIR                  = 'in'
 EXPECTED_OUT_DIR        = 'eout'
 BASE_FILES_DIR          = 'superdeduper/test/files'
                           # e.g. 'superdeduper/test/files/last_run')
@@ -90,6 +97,33 @@ def to_eout_filename(fout_filename):
     return '/'.join(elems)
     # -> 'files/remove_adapter/eout/A_R1.rmadapt.fq'
 
+def to_eout_db_dump_filename(alignment_file, db_name):
+    """Convert filename of output file to filename of expected output file.
+
+    Args:
+        alignment_file (str): Name of the alignment file.
+        db_name (str): Name of the db
+    Example:
+        args ('files/build_read_db/in/11_first_test.pe.sam', 'read_group_db')
+        converts to
+        'files/build_read_db/eout/11_first_test.pe.read_group_db'
+    """
+
+    if alignment_file[-4:] in ('.sam', '.bam'):
+        # Chop off .sam or .bam extension
+        alignment_file = alignment_file[:-4]
+
+    elems = alignment_file.split('/')
+    # -> ['files', 'build_read_db', 'in', '11_first_test.pe']
+    elems.remove(IN_DIR)
+    # -> ['files', 'build_read_db', '11_first_test.pe']
+    elems.insert(-1, EXPECTED_OUT_DIR)
+    # -> ['files', 'build_read_db', 'eout', '11_first_test.pe']
+    eout = '/'.join(elems)
+    # -> 'files/build_read_db/eout/11_first_test.pe'
+    return '.'.join((eout, db_name))
+    # -> 'files/build_read_db/eout/11_first_test.pe.read_group_db'
+
 def fix_paths(args, base_in, base_out, file_params):
     """Takes as input the docopt generated 'args' dict, and fixes all of the
     input/output paths.
@@ -119,7 +153,8 @@ def fix_paths(args, base_in, base_out, file_params):
         base_out (str): Directory where the output files are placed.
             e.g. 'superdeduper/test/files/last_run/remove_adapter/'
         file_params ([str]): e.g. ['<input.fastq>' '<in1.fastq>', '<in2.fastq>']
-    Returns
+    Returns:
+        ...
     """
     # Fix output dir path
     args['-o'] = base_out

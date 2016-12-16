@@ -15,12 +15,14 @@
 ### Imports ###
 ###############
 
-# Python 3 imports
-from __future__ import absolute_import
-from __future__ import division
+# Python 2/3 compatibility imports
+from __future__ import absolute_import, division, print_function
+
+# NOTE: Do *not* do the following:
+# from builtins import str, chr, object
+
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object
 
 # SuperDeDuper imports
 from superdeduper.annotate_qtrim import __doc__
