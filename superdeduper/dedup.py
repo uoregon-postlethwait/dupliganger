@@ -226,7 +226,7 @@ def umi_bioo_report(seq_umi):
         dist = 0
     else:
         potential_umis = []
-        for curr_dist in range(1,8):
+        for curr_dist in range(1,9):
             for umi in UMIS_BIOO:
                 d = distance.hamming(umi, seq_umi)
                 if d == curr_dist:
@@ -235,6 +235,14 @@ def umi_bioo_report(seq_umi):
             if dist < inf:
                 # Found at least one
                 break
+
+    if dist == inf:
+        # TODO: Remove this code if not found after this...
+        # Hrm, fixed the bug above (range(1,9) was previously range(1,8)) so
+        # being here should be impossible.  Announce anomoly.
+        msg = "WARNING umi_bio_report: dist == infinity, seq_umi = {}".format(
+                    seq_umi)
+        sys.stderr.write(msg)
 
     return (dist, potential_umis)
 

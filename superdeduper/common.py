@@ -293,7 +293,7 @@ def bamopen(filename, silence_broken_pipe_errors=False):
             reading all the output, samtools will complain of a broken pipe.
     """
 
-    cmd = shlex.split('samtools view {}'.format(filename))
+    cmd = shlex.split('samtools view -h {}'.format(filename))
     if silence_broken_pipe_errors:
         import os
         DEVNULL = open(os.devnull, 'wb')
@@ -317,7 +317,7 @@ def sambamopen(filename):
         filename (str): The filename to examine.
     """
 
-    cmd = shlex.split('samtools view {}'.format(filename))
+    cmd = shlex.split('samtools view -h {}'.format(filename))
     if is_bam(filename):
         with subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 bufsize=-1, universal_newlines=True).stdout as f:
