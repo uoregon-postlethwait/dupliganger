@@ -60,8 +60,12 @@ COMMAND_FILE_PARAMS = ['<alignment-file>']
 #################
 
 @pytest.fixture(scope="module", params=[
+        # bioo
         'dedup --kit bioo --write-flagged-sam --no-write-sam-headers --store memory 11_first_test.pe.bioo.sam',
         'dedup --kit bioo --write-flagged-sam --no-write-sam-headers --store memory 12_one_dup_one_not.pe.bioo.sam',
+        # doug
+        'dedup --write-flagged-sam --no-write-sam-headers --store memory 13_first_test.pe.doug.sam',
+        'dedup --write-flagged-sam --no-write-sam-headers --store memory 14_one_dup_one_not.pe.doug.sam',
     ])
 def commands(request):
     """This is where the magic happens.
