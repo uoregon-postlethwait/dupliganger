@@ -30,7 +30,6 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 import os
-import sys
 import shutil
 
 #################
@@ -79,23 +78,53 @@ def test_outdir(request):
     if not os.environ.get("SUPERDEDUPER_KEEP_TEST_DIRS"):
         shutil.rmtree(_test_outdir, True)
 
-def to_eout_filename(fout_filename):
+def to_eout_filename(fout_filename, python_version=None):
     """Convert filename of output file to filename of expected output file.
+
+    If user passes optional python_version, then the tests expect different
+    outputs for python version 2 vs version 3 (at time of writing, the only
+    reason for this is the difference in python 2/3 pseudo random number
+    generator) and so the files are put in a subdir named either 'py2' or
+    'py3'.
 
     Example:
         'files/last_run/remove_adapter/A_R1.rmadapt.fq'
         converts to
         'files/remove_adapter/eout/A_R1.rmadapt.fq'
+
+    Example of passing python_version=3:
+        'files/last_run/remove_adapter/A_R1.rmadapt.fq'
+        converts to
+        'files/remove_adapter/eout/py3/A_R1.rmadapt.fq'
+
+    Args:
+        python_version (str): Optional; user specified a python_version (see
+            above).
     """
+    # Check reasonable python_version
+    assert python_version in (2, 3, None)
 
     elems = fout_filename.split('/')
     # -> ['files', 'last_run', 'remove_adapter', 'A_R1.rmadapt.fq']
+    just_filename = elems[-1]
     elems.remove(LAST_RUN_DIR)
     # -> ['files', 'remove_adapter', 'A_R1.rmadapt.fq']
     elems.insert(-1, EXPECTED_OUT_DIR)
     # -> ['files', 'remove_adapter', 'eout', 'A_R1.rmadapt.fq']
-    return '/'.join(elems)
+    if python_version is not None:
+        elems.insert(-1, "py{}".format(python_version))
+        # -> ['files', 'remove_adapter', 'eout', 'py3', 'A_R1.rmadapt.fq']
+    feout_filename = '/'.join(elems)
     # -> 'files/remove_adapter/eout/A_R1.rmadapt.fq'
+
+    # Leave these print statements here, otherwise very difficult to debug tox
+    # output when one fails (because we're using pytest fixtures, so without
+    # these print statements, impossible to tell which file it failed on).
+    print("actual   output filename = {}".format(fout_filename))
+    print("expected output filename = {}".format(feout_filename))
+    print("just     the    filename = {}".format(just_filename))
+
+    return feout_filename
 
 def to_eout_db_dump_filename(alignment_file, db_name):
     """Convert filename of output file to filename of expected output file.
@@ -130,20 +159,16 @@ def fix_paths(args, base_in, base_out, file_params):
 
     Example:
         args before = { ...
-            '--adapter1': 'GATCGGAAGAGCACACG',
             '-o': None,
             '<in1.fastq>': 'A_R1.fq',
             '<in2.fastq>': 'A_R2.fq',
             '<input.fastq>': None,
-            'remove-adapter': True
         ... }
         args after = { ...
-            '--adapter1': 'GATCGGAAGAGCACACG',
             '-o': 'superdeduper/test/files/last_run/remove_adapter',
             '<in1.fastq>': 'superdeduper/test/files/remove_adapter/in/A_R1.fq',
             '<in2.fastq>': 'superdeduper/test/files/remove_adapter/in/A_R2.fq',
             '<input.fastq>': None,
-            'remove-adapter': True
         ... }
 
     Args:
@@ -153,8 +178,10 @@ def fix_paths(args, base_in, base_out, file_params):
         base_out (str): Directory where the output files are placed.
             e.g. 'superdeduper/test/files/last_run/remove_adapter/'
         file_params ([str]): e.g. ['<input.fastq>' '<in1.fastq>', '<in2.fastq>']
+
     Returns:
-        ...
+        dict: The modified args dict.
+
     """
     # Fix output dir path
     args['-o'] = base_out

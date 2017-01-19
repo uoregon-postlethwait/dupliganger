@@ -65,8 +65,8 @@ SAM_TAG_READ2_CLOSEST_UMI      =                                    'c2:i:'
 # ReportDB metrics
 
 LOG_NUM_LOCATIONS =                                         'num_locations'
-LOG_NUM_UNIQUE_UMI_PAIR_LOCATION_COMBINATIONS = (
-                                'num_unique_umi_pair_location_combinations')
+LOG_NUM_UNIQUE_UMI_AND_LOCATION_COMBINATIONS = (
+                                 'num_unique_umi_and_location_combinations')
 LOG_NUM_READ_GROUPS =                                     'num_read_groups'
 LOG_NUM_DUP_GROUPS =                                       'num_dup_groups'
 LOG_NUM_READ_GROUPS_WITH_UMI_ERROR =       'num_read_groups_with_umi_error'
@@ -77,7 +77,7 @@ LOG_NUM_READ_GROUPS_REJECTED_DUE_TO_UMI_ERROR_DIST = (
 # ReportDB
 REPORT_DB_COUNT_METRICS = [
     LOG_NUM_LOCATIONS,
-    LOG_NUM_UNIQUE_UMI_PAIR_LOCATION_COMBINATIONS,
+    LOG_NUM_UNIQUE_UMI_AND_LOCATION_COMBINATIONS,
     LOG_NUM_READ_GROUPS,
     LOG_NUM_DUP_GROUPS,
     LOG_NUM_READ_GROUPS_WITH_UMI_ERROR, ]

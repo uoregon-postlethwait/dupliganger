@@ -25,14 +25,14 @@ Usage:
 
 Options:
     -h, --help
-    -v, --verbose           Be verbose
-    -o OUT_DIR              Place results in directory OUT_DIR.
-    -k KIT, --kit KIT       The kit used [default: bioo].
-    -t N, --threads N       Number of threads.
-    --store STORE           Storage backend: 'lmdb' or 'memory' [default: lmdb]
-    --debug-switch S        Fun debug switch [default: nothing].
-    --debug-dump-rg-db      Dump the ReadGroup database (for debugging purposes only).
-    --debug-dump-loc-db     Dump the Location database (for debugging purposes only).
+    -v, --verbose        Be verbose
+    -o OUT_DIR           Place results in directory OUT_DIR.
+    -k KIT, --kit KIT    The kit used [default: bioo].
+    -t N, --threads N    Number of threads.
+    --store STORE        Storage backend: 'lmdb' or 'memory' [default: lmdb]
+    --debug-switch S     Fun debug switch [default: nothing].
+    --debug-dump-rg-db   Dump the ReadGroup database (for debugging purposes only).
+    --debug-dump-loc-db  Dump the Location database (for debugging purposes only).
 
 """
 
@@ -40,18 +40,17 @@ Options:
 ### Imports ###
 ###############
 
-# Python 3 imports
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-from builtins import ascii
+# Python 2/3 compatibility imports
+from __future__ import absolute_import, division, print_function
 
 # NOTE: Do *not* do the following:
-# from builtins import str
-# from builtins import chr
+# from builtins import str, chr, object
 # py-lmdb uses bytes() for py3 and str() for py2.
-# This module has different code for py2 and py3.
+# This package has different code for py2 and py3.
+# And importing that future 'object' has a bug that screws up __slots__ in
+# py2 (causes different behavior than in py3).
+
+from builtins import ascii
 
 # version
 from superdeduper._version import __version__
@@ -156,9 +155,6 @@ def write_to_read_and_location_dbs_txn(report_db, fin, read_group_id,
         read_group = curr_read_group
         prev_read = curr_read_group[-1]
 
-    # DEBUG
-    # read_group.dataA = 'hello dataA'
-    # read_group.dataB = 'hello dataB'
     while remaining_lines and record_count < records_per_txn:
         while True: # Assumption: average len(read_group) << records_per_txn
             # Collect all reads with same RNAME
@@ -206,9 +202,7 @@ def write_to_read_and_location_dbs_txn(report_db, fin, read_group_id,
     return (done, read_group_id, read_group)
 
 def parse_args(args):
-    """Parse the command line arguments.
-
-    """
+    """Parse the command line arguments."""
     debug_switch = args['--debug-switch']
     dump_rg_db = args['--debug-dump-rg-db']
     dump_loc_db = args['--debug-dump-loc-db']

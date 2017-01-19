@@ -20,3 +20,4 @@ superdeduper/test/files/last_run
 .tox
 
 .cache
+.coverage

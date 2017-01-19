@@ -23,13 +23,21 @@ Output (subject to change):
         removed from <alignment-file>.
 
 Options:
-    -h, --help
+
+    -h, --help              Print this help.
     -v, --verbose           Be verbose
     -o OUT_DIR              Place results in directory OUT_DIR. Defaults to the
                             current directory.
-    -k KIT, --kit KIT       The kit used [default: bioo]. Case insensitive.
     -u, --unpaired          Reads are unpaired [default: False].
-    -t N, --threads N       Number of threads.
+    -k KIT, --kit KIT       (Optional) The kit used (case insensitive). If
+                            'bioo' is given, then ...
+    --store STORE           Storage backend: 'lmdb' or 'memory' [default:
+                            memory].
+    --random-seed SEED      For those wanting complete control, change the
+                            random seed from its normally hardcoded value.
+
+Options when UMIs are known a priori (e.g. --kit=Bioo):
+
     -K, --keep-bad-umis     Default is to remove a read (or a read-pair) if
                             there is an error in the read's UMI (or one of the
                             read-pair's UMIs).  Use this flag to retain reads
@@ -39,8 +47,9 @@ Options:
                             Hamming distance away from at most one known UMI.
                             Only applicable if --kit bioo.  See also
                             --keep-bad-umis. NOT CURRENTLY IMPLEMENTED.
-    --store STORE           Storage backend: 'lmdb' or 'memory' [default:
-                            memory].
+
+Output Options:
+
     --no-write-dedupped-sam  Do not write the default output of superdeduper
                              (which is a SAM file with PCR duplicates removed).
                              See also --write-flagged-sam.
@@ -52,14 +61,13 @@ Options:
     --no-write-dup-group-file  Write a SAM-like file that contains groups of
                                reads (or read-pairs) that have the same location
                                and UMIs.
-    --no-write-umi-error-sam  Do not write a SAM file that contains reads or
-                              read-pairs with one or more errors in their UMIs.
+    --no-write-sam-headers   Do not write SAM headers.
 
     --unannotate-read-name   Remove superdeduper read-name annotations from
                              final output.  NOT IMPLEMENTED.
 
-    --random-seed=SEED       For those wanting complete control, change the
-                             random seed from its normally hardcoded value.
+Debug Options:
+
     --debug-no-build-read-and-loc-dbs   For debugging: Don't build the read and
                                         location DBs.
 
@@ -192,8 +200,13 @@ def choose_winner_and_losers_random_fixed_seed(fp_get_read_group, dup_group):
         (str, (str,)): A two tuple: First member is the winning read_group_id,
             second member is a list of the losing read_group_ids.
     """
-    # Convert dup_group to a list (generator) of its member ReadGroups.
-    dup_group = sorted((fp_get_read_group(rg_id) for rg_id in dup_group))
+    ###dup_group = sorted((fp_get_read_group(rg_id) for rg_id in dup_group))
+
+    # Sort for determinism
+    dup_group = sorted(dup_group)
+    # Convert dup_group to a list of its member ReadGroups.
+    dup_group = [fp_get_read_group(rg_id) for rg_id in dup_group]
+
     # Choose a winner randomly
     winner_idx = random.randrange(0, len(dup_group))
     winner = dup_group.pop(winner_idx)
@@ -236,13 +249,13 @@ def umi_bioo_report(seq_umi):
                 # Found at least one
                 break
 
-    if dist == inf:
-        # TODO: Remove this code if not found after this...
-        # Hrm, fixed the bug above (range(1,9) was previously range(1,8)) so
-        # being here should be impossible.  Announce anomoly.
-        msg = "WARNING umi_bio_report: dist == infinity, seq_umi = {}".format(
-                    seq_umi)
-        sys.stderr.write(msg)
+    # if dist == inf:
+    #     # TODO: Remove this code if not found after this...
+    #     # Hrm, fixed the bug above (range(1,9) was previously range(1,8)) so
+    #     # being here should be impossible.  Announce anomoly.
+    #     msg = "WARNING umi_bio_report: dist == infinity, seq_umi = {}".format(
+    #                 seq_umi)
+    #     sys.stderr.write(msg)
 
     return (dist, potential_umis)
 
@@ -264,7 +277,8 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
                 - number of ReadGroups rejected due to errors in UMIs.
                 - more not listed here.
 
-    This is the paired-end Bioo version of the family of identify_dup_groups().
+    This is the paired-end Bioo version of the family of process_location()
+    functions.
 
     Args:
         report_db (dict): A database for metrics to report.
@@ -299,8 +313,7 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
                             (Note: Uncorrected UMI is in the annotated read name.)
             c2:Z:nts        Same as c1, but for Read2.
     """
-    # key: umi_pair, val: list of read_group_ids with that umi_pair in the form
-    #                     of a (read_group_id, read_group) tuple
+    # key: umi_pair, val: list of read_group_ids with that umi_pair.
     rg_ids_by_umi_pair = {}
 
     for read_group_id, read_group in iteritems(read_groups):
@@ -385,7 +398,7 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
     # report_db: update number of unique location/umi_pair combinations
     # There is another place in write_to_dup_group_db where this metric is
     # incrememted.
-    report_db[LOG_NUM_UNIQUE_UMI_PAIR_LOCATION_COMBINATIONS] += len(dup_groups)
+    report_db[LOG_NUM_UNIQUE_UMI_AND_LOCATION_COMBINATIONS] += len(dup_groups)
 
     # Only DupGroups with more than one member are real DupGroups.
     dup_groups_larger_than_one_member = [ dg for dg in dup_groups if len(dg) > 1 ]
@@ -473,7 +486,7 @@ def write_to_dup_group_db(report_db, parent_db, read_group_db, loc_db,
                 # number of unique location/umi_pair combos.  (When there are
                 # more than one read_groups per location, this metric is
                 # updated in process_location() (see a few lines above))
-                metric = LOG_NUM_UNIQUE_UMI_PAIR_LOCATION_COMBINATIONS
+                metric = LOG_NUM_UNIQUE_UMI_AND_LOCATION_COMBINATIONS
                 report_db[metric] += 1
 
 def write_to_dup_db(report_db, parent_db, read_group_db, dup_group_db, dup_db,
@@ -572,11 +585,10 @@ def write_dup_group_sam_like_file(parent_db, read_group_db, dup_group_db,
         time1 = time.time()
         dg_ids = {}
         dup_groups = []
-        for dup_group in itervalues(dup_group_db):
+        for dup_group in sorted(itervalues(dup_group_db)):
             if id(dup_group) not in dg_ids:
                 dg_ids[id(dup_group)] = True
                 dup_groups.append(dup_group)
-        dup_groups = sorted(dup_groups)
         time2 = time.time()
         print('DEBUG TIMING A: It took {}s to generate list of unique dup groups.'.format(
                 time2 - time1))
@@ -593,7 +605,7 @@ def write_dup_group_sam_like_file(parent_db, read_group_db, dup_group_db,
 def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
         input_file, reject_umi_errors, dedupped_sam, flagged_sam, dup_only_sam,
         rejects_sam, write_dedupped_sam, write_flagged_sam, write_dup_only_sam,
-        write_dup_group_sam_like, write_umi_error_rejects):
+        write_dup_group_sam_like, write_umi_error_rejects, write_sam_headers):
     """Writes the output files for paired-end input. Including:
         * A dedupped SAM file - no PCR duplicates included
         * A flagged SAM file - Identical to the input_file, but with PCR
@@ -618,25 +630,38 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
         aln_line = None
         prev_qname = None
 
+        # Check for @HD line.
+        line = fin.readline()
+        if line[0:3] == '@HD':
+            if write_sam_headers:
+                # Found '@HD' line, which must be the first line. Write it.
+                f_dedupped_sam.write(line)
+                f_flagged_sam.write(line)
+                f_dup_only_sam.write(line)
+                f_umi_reject_sam.write(line)
+        else:
+            # No @HD line, start at beginning
+            fin.seek(0)
+
+        # Safe to write @PG line now.
+        if write_sam_headers:
+            pg_line = '@PG\tID:{}\tPN:{}\tVN:v{}\tCL:{}\n'.format(
+                    'superdeduper', 'superdeduper', __version__,
+                    ' '.join(sys.argv))
+            f_dedupped_sam.write(pg_line)
+            f_flagged_sam.write(pg_line)
+            f_dup_only_sam.write(pg_line)
+            f_umi_reject_sam.write(pg_line)
+
         # Write out headers
         while True:
             aln_line = fin.readline()
             if aln_line[0] == '@':
-                f_dedupped_sam.write(aln_line)
-                f_flagged_sam.write(aln_line)
-                f_dup_only_sam.write(aln_line)
-                f_umi_reject_sam.write(aln_line)
-
-                if aln_line[0:3] == '@HD':
-                    # Already wrote the first line (header line), now we can write
-                    # our @PG line.
-                    pg_line = '@PG\tID:{}\tPN:{}\tVN:v{}\tCL:{}\n'.format(
-                            'superdeduper', 'superdeduper', __version__,
-                            ' '.join(sys.argv))
-                    f_dedupped_sam.write(pg_line)
-                    f_flagged_sam.write(pg_line)
-                    f_dup_only_sam.write(pg_line)
-                    f_umi_reject_sam.write(pg_line)
+                if write_sam_headers:
+                    f_dedupped_sam.write(aln_line)
+                    f_flagged_sam.write(aln_line)
+                    f_dup_only_sam.write(aln_line)
+                    f_umi_reject_sam.write(aln_line)
             else:
                 prev_qname, _ = aln_line.split('\t', 1)
                 aln_lines.append(aln_line)
@@ -720,26 +745,22 @@ def parse_args(args):
     write_flagged_sam = args['--write-flagged-sam']
     write_dup_only_sam = not args['--no-write-dup-sam']
     write_dup_group_sam_like = not args['--no-write-dup-group-file']
-    write_umi_error_rejects = not args['--no-write-umi-error-sam']
-
-    # Convert ~ to real path
-    input_file = os.path.expanduser(args['<alignment-file>'])
-
-    # Which kit?
-    kit = args['--kit'].lower()
-    if kit == KIT_BIOO:
-        pass
-    else:
-        raise CannotContinueException("""Kit {} is not supported.""".format(kit))
-
-    if kit != KIT_BIOO and write_umi_error_rejects:
-        raise CannotContinueException(
-                "Cannot identify UMI errors when kit is {}.".format(kit))
+    write_sam_headers = not args['--no-write-sam-headers']
 
     paired = False if args['--unpaired'] else True
     reject_umi_errors = not args['--keep-bad-umis']
     correct_umis = args['--correct-umis']
     build_read_and_loc_dbs = not args['--debug-no-build-read-and-loc-dbs']
+
+    # Convert ~ to real path
+    input_file = os.path.expanduser(args['<alignment-file>'])
+
+    # Which kit?
+    kit = str(args['--kit']).lower()
+    if kit == KIT_BIOO:
+        write_umi_error_rejects = True
+    else:
+        write_umi_error_rejects = False
 
     if correct_umis and kit != KIT_BIOO:
         raise CannotContinueException(
@@ -749,9 +770,6 @@ def parse_args(args):
         raise CannotContinueException(
                 "Doesn't make sense to reject and *also* correct erroneous UMIs!!"
                 " If passing --correct, you must also pass --keep-bad-umis.")
-
-    # Figure out which function to use to write to output file.
-    num_threads = args['--threads']
 
     # Which store to use
     if args['--store'] not in (STORE_OPTION_LMDB, STORE_OPTION_MEMORY):
@@ -763,14 +781,15 @@ def parse_args(args):
     return (kit, store, outdir, input_file, paired, build_read_and_loc_dbs,
             reject_umi_errors, correct_umis, write_dedupped_sam,
             write_flagged_sam, write_dup_only_sam, write_dup_group_sam_like,
-            write_umi_error_rejects, random_seed, debug_switch, dump_rg_db,
-            dump_loc_db, dump_dup_group_db, dump_dup_db, dump_umi_error_db)
+            write_umi_error_rejects, write_sam_headers, random_seed,
+            debug_switch, dump_rg_db, dump_loc_db, dump_dup_group_db,
+            dump_dup_db, dump_umi_error_db)
 
 def run(kit, store, outdir, input_file, paired, build_read_and_loc_dbs,
         reject_umi_errors, correct_umis, write_dedupped_sam, write_flagged_sam,
-        write_dup_only_sam, write_dup_group_sam_like,
-        write_umi_error_rejects, random_seed, debug_switch, dump_rg_db,
-        dump_loc_db, dump_dup_group_db, dump_dup_db, dump_umi_error_db):
+        write_dup_only_sam, write_dup_group_sam_like, write_umi_error_rejects,
+        write_sam_headers, random_seed, debug_switch, dump_rg_db, dump_loc_db,
+        dump_dup_group_db, dump_dup_db, dump_umi_error_db):
     """Start the run.
 
     Args:
@@ -781,7 +800,14 @@ def run(kit, store, outdir, input_file, paired, build_read_and_loc_dbs,
         build_read_and_loc_dbs (bool): Whether or not to build the
             read_group_db and location_db.
     """
+
     ## Set the random seed (if not set by user).
+    if sys.version_info[0:2] in ((3,0), (3,1)):
+        print("WARNING: You are using python v{}.{}, which has a random number "
+                "generator which is not stable between runs.  Superdeduper "
+                "output will not be the same between runs.  To fix this, switch "
+                "to python version 2.7 or version >= 3.2.".format(
+                    sys.version_info[0], sys.version_info[1]))
     random.seed(RANDOM_SEED if random_seed is None else random_seed)
 
     # report_db:
@@ -931,7 +957,7 @@ def run(kit, store, outdir, input_file, paired, build_read_and_loc_dbs,
             input_file, reject_umi_errors, tmp_dedupped_sam, tmp_flagged_sam,
             tmp_dup_only_sam, tmp_rejects_sam, write_dedupped_sam,
             write_flagged_sam, write_dup_only_sam, write_dup_group_sam_like,
-            write_umi_error_rejects)
+            write_umi_error_rejects, write_sam_headers)
     time2 = time.time()
     print("Writing output files took: {}s, current mem (MBs): {}".format(
         time2 - time1, memory_info(True)))
