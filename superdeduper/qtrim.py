@@ -44,13 +44,11 @@ from __future__ import absolute_import, division, print_function
 # from builtins import str, chr, object
 
 # SuperDeDuper imports
+from superdeduper.exceptions import *
 from superdeduper.constants import *
 from superdeduper.common import (pgopen, tmpf_start, tmpf_finish,
         filename_in_to_out_fqgz, pe_log_filename, se_log_filename,
         args_to_out_dir)
-# SuperDeDuper exceptions
-from superdeduper.common import (PrerequisitesException, ControlFlowException,
-        ExecutionException)
 
 ## Other imports
 from docopt import docopt

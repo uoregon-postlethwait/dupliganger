@@ -56,6 +56,7 @@ from superdeduper._version import __version__
 
 # SuperDeDuper imports
 from superdeduper.constants import *
+from superdeduper.exceptions import *
 from superdeduper.common import (pgopen, bamopen, gzwrite, pigzwrite,
         tmpf_start, tmpf_finish, is_gzipped, is_bam, is_paired_bam,
         filename_in_to_out_fqgz, filename_in_bam_to_out_fqgz, args_to_out_dir)

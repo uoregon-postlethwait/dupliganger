@@ -111,9 +111,9 @@ from builtins import range
 
 # SuperDeDuper imports
 from superdeduper.constants import *
+from superdeduper.exceptions import *
 from superdeduper.common import (setup_report_db, args_to_out_dir, sambamopen,
-        filename_in_to_out_sambam, tmpf_start, tmpf_finish, memory_info,
-        CannotContinueException)
+        filename_in_to_out_sambam, tmpf_start, tmpf_finish, memory_info)
 from superdeduper.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
         SimpleBucketLmdb, SimpleObjectDbDict, SimpleObjectDbLmdb)
 from superdeduper.sam import (Read, ReadGroup, to_location_key_with_5p_trimming)

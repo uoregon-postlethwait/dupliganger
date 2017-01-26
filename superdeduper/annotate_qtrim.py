@@ -46,6 +46,7 @@ from builtins import range
 
 # SuperDeDuper imports
 from superdeduper.constants import *
+from superdeduper.exceptions import *
 from superdeduper.common import (pgopen, tmpf_start, tmpf_finish,
         is_gzipped, filename_in_to_out_fqgz, pe_log_filename, se_log_filename,
         args_to_out_dir)

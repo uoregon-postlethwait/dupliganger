@@ -1,0 +1,10 @@
+num_reads_with_barcode_mismatch: 1
+num_reads_with_Ns_in_UMI: 1
+num_reads_with_umi_poor_quality: 1
+Barcode_Histogram:
+AGGAGTCC: 2
+TTCTGCCT: 1
+UMI_Histogram:
+GGAACACT: 1
+GGAAGGAA: 1
+TAACCAAT: 1

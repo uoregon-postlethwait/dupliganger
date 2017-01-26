@@ -22,7 +22,7 @@ from __future__ import absolute_import, division, print_function
 
 # SuperDeDuper imports
 from superdeduper.constants import *
-from superdeduper.common import HardClippingNotSupportedException
+from superdeduper.exceptions import *
 
 # Other imports
 

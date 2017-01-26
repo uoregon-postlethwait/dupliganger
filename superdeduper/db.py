@@ -30,7 +30,7 @@ from future.utils import iteritems
 
 # SuperDeDuper imports
 from superdeduper.constants import *
-from superdeduper.common import (HardClippingNotSupportedException)
+from superdeduper.exceptions import *
 
 ### DEBUGGING
 from superdeduper.sam import (to_location_key_with_5p_trimming)

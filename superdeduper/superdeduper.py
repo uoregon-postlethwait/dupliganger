@@ -72,9 +72,9 @@ import subprocess
 ### Constants ###
 #################
 
-SDD_COMMAND_MODULES = ['remove_umi', 'remove_adapter', 'qtrim',
-        'annotate_qtrim', 'prep', 'dedup', 'build_read_and_loc_dbs',
-        'build_dup_db']
+SDD_COMMAND_MODULES = ['remove_umi', 'barcode_split_quality_filter_umi_anno',
+        'remove_adapter', 'qtrim', 'annotate_qtrim', 'prep', 'dedup',
+        'build_read_and_loc_dbs', 'build_dup_db']
 
 #################
 ### Functions ###

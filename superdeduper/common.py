@@ -25,8 +25,10 @@ from builtins import range
 # SuperDeDuper imports
 try:
     from superdeduper.constants import *
+    from superdeduper.exceptions import *
 except ImportError:
     from constants import *
+    from exceptions import *
 
 # Other imports
 
@@ -63,29 +65,6 @@ except ImportError:
 # For memory usage.
 import psutil
 import resource
-
-##################
-### Exceptions ###
-##################
-
-class ConfigurationException(Exception):
-    """Something went wrong with the configuration section."""
-class ExecutionException(Exception):
-    """Something went wrong with the execution of an external command."""
-class ControlFlowException(Exception):
-    """Something went wrong with control flow logic."""
-class CannotContinueException(Exception):
-    """SuperDeDuper has encountered a situation from which it cannot continue."""
-class PrerequisitesException(Exception):
-    """SuperDeDuper is missing prerequisites (e.g. missing gsnap)."""
-class ArgumentException(Exception):
-    """Problem with command line arguments."""
-class ParseException(Exception):
-    """Something went wrong with parsing something."""
-class HardClippingNotSupportedException(Exception):
-    """Encountered sam file hard-clipping, which is not supported."""
-class UnexpectedExtensionException(Exception):
-    """Extension passed was not in expected extensions."""
 
 #################
 ### Functions ###
@@ -588,8 +567,15 @@ def args_to_out_dir(args):
         out_dir = args['-o']
     elif '--out' in args and args['--out'] is not None:
         our_dir = args['--out']
+    elif '--outdir' in args and args['--outdir'] is not None:
+        our_dir = args['--outdir']
+    elif '--out-dir' in args and args['--out-dir'] is not None:
+        our_dir = args['--out-dir']
     else:
         out_dir = ""
+
+    # Convert ~ to real path
+    out_dir = os.path.expanduser(out_dir)
 
     try:
         os.mkdir(out_dir)
@@ -640,7 +626,7 @@ def tmpf_start(*filenames):
 
 def tmpf_finish(*tmp_filenames):
     """Makes a temporary version of a file permanent.  It strips off the
-    '.tmp.XXXXXX' part of the filename, the renames (moves) the actual file.
+    '.tmp.XXXXXX' part of the filename, then renames (moves) the actual file.
     Does no checking to see if the file is still open (hopefully it isn't).
 
     Handles gzipped files as well.
@@ -648,6 +634,7 @@ def tmpf_finish(*tmp_filenames):
     Args:
         tmp_filenames ([str]): The temporary name of the file(s).
     """
+    final_filenames = []
     for tmp_filename in tmp_filenames:
         if tmp_filename == os.devnull:
             # If you want /dev/null, it's not very temporary in nature.
@@ -663,7 +650,81 @@ def tmpf_finish(*tmp_filenames):
         if is_gzipped:
             tmp_filename += '.gz'
             filename += '.gz'
+        final_filenames.append(filename)
         os.rename(tmp_filename, filename)
+    return final_filenames
+
+@contextlib.contextmanager
+def tmpf_name(delete_temp_files_upon_failure, filename):
+    """Context manager to manage naming of temporary files (for writing).  Does the
+    following:
+        * creates *temporary* filename
+        * yields that filename back
+        * Upon success, renames the temp file to permanent name ('filename').
+        * Upon failure (an Exception), it will attempt to delete the temporary
+          file.
+    Args:
+        delete_temp_files_upon_failure (bool): Whether or not to delete tmp
+            files upon external failure.
+        filename (str): Name of file to be written to.
+    Yields:
+        (str): The name of the temp file to be written to.
+    """
+    try:
+        tmp_filename = tmpf_start(filename)[0]
+        yield tmp_filename
+    except Exception as e:
+        if delete_temp_files_upon_failure:
+            try:
+                os.remove(tmp_filename)
+            except Exception:
+                # We catch and ignore this exception so as to not mask previous exceptions.
+                pass
+        raise e
+    finally:
+        try:
+            tmpf_finish(tmp_filename)
+        except Exception:
+            # We catch and ignore this exception so as to not mask previous
+            # exceptions.
+            pass
+
+@contextlib.contextmanager
+def tmpf_open(fp_write, delete_temp_files_upon_failure, filename):
+    """Context manager to open up temporary files for writing.  Does the
+    following:
+        * opens *temporary* output file for writing
+        * yields that file back for writing
+        * when finished writing, closes the file.
+        * Upon success, renames the temp file to permanent name ('filename').
+        * Upon failure (an Exception), it will attempt to delete the temporary
+          file.
+    Args:
+        fp_write (function): Function to write file (eg write(), gzwrite()).
+        delete_temp_files_upon_failure (bool): Whether or not to delete tmp
+            files upon external failure.
+        filename (str): Name of file to be written to.
+    Yields:
+        (file): A filehandle to the temp file.
+    """
+    try:
+        tmp_filename = tmpf_start(filename)[0]
+        with fp_write(tmp_filename) as f:
+            yield f
+    except Exception as e:
+        if delete_temp_files_upon_failure:
+            try:
+                os.remove(tmp_filename)
+            except Exception:
+                # We catch and ignore this exception so as to not mask previous exceptions.
+                pass
+        raise e
+    finally:
+        try:
+            tmpf_finish(tmp_filename)
+        except Exception:
+            # We catch and ignore this exception so as to not mask previous exceptions.
+            pass
 
 def is_gzipped(filename):
     """Determines if the file is gzipped or not. Uses magic number.

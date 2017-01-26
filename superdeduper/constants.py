@@ -132,6 +132,8 @@ RECORDS_PER_TXN = 100000
 # RECORDS_PER_TXN = 500
 
 # File suffixes
+# For FASTQ reads that are rejected (e.g. UMI quality score too low)
+SUFFIX_REJECTS =                                                  'rejects'
 # After --remove-umi is run.
 SUFFIX_REMOVE_UMI =                                                 'rmumi'
 # After remove-adapter is run.

@@ -57,8 +57,9 @@ from superdeduper._version import __version__
 
 # SuperDeDuper imports
 from superdeduper.constants import *
+from superdeduper.exceptions import *
 from superdeduper.common import (setup_report_db, sambamopen, args_to_out_dir,
-        memory_info, CannotContinueException)
+        memory_info)
 from superdeduper.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
         SimpleBucketLmdb, LocationBucketDb, SimpleObjectDbDict,
         SimpleObjectDbLmdb)
