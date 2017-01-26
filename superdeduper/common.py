@@ -404,7 +404,7 @@ def pe_file_root(pe_filename):
     """
     dirname, root, orig_ext = file_root(pe_filename, ['fq', 'fastq'])
 
-    if '_R1' in root or '_R2' not in root:
+    if 'R1' in root or 'R2' not in root:
         raise CannotContinueException(
                  "pe_file_root should only be called with the R2 file.")
 
