@@ -29,8 +29,8 @@ Options:
     -C S, --cutadapt S  Pass 'S' as arguments to Cutadapt. Don't forget to put quotes
                         around S if passing in more than one argument.
                         [default: '-n 3 -O 1 -m 30']
-    -1 A, --adapter1    First (Illumina) adapter [default: GATCGGAAGAGCACACG]
-    -2 A, --adapter2    Second (Illumina) adapter [default: AGATCGGAAGAGCGTCG]
+    -1 A, --adapter1    First (Illumina) adapter [default: AGATCGGAAGAGC]
+    -2 A, --adapter2    Second (Illumina) adapter [default: AGATCGGAAGAGC]
 
 """
 
