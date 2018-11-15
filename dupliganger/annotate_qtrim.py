@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,11 +15,11 @@
 'annotate-qtrim' uses the 'trimlog' produced by Trimmomatic to annotate.
 
 Usage:
-    superdeduper annotate-qtrim [options] <input.fastq>
-    superdeduper annotate-qtrim [options] <in1.fastq> <in2.fastq>
+    dupliganger annotate-qtrim [options] <input.fastq>
+    dupliganger annotate-qtrim [options] <in1.fastq> <in2.fastq>
 
 Note:
-    SuperDeDuper supports (and autodetects) input FASTQ files that are gzipped.
+    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
 
 Options:
     -h, --help
@@ -44,10 +44,10 @@ from __future__ import division
 from __future__ import print_function
 from builtins import range
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
-from superdeduper.common import (pgopen, tmpf_start, tmpf_finish,
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
+from dupliganger.common import (pgopen, tmpf_start, tmpf_finish,
         is_gzipped, filename_in_to_out_fqgz, pe_log_filename, se_log_filename,
         args_to_out_dir)
 

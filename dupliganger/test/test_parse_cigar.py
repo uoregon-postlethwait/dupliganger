@@ -1,6 +1,6 @@
 # Copyright (C) 2016 Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -12,8 +12,8 @@
 
 import pytest
 from pytest import fixture
-from superdeduper.sam import parse_cigar
-from superdeduper.common import HardClippingNotSupportedException
+from dupliganger.sam import parse_cigar
+from dupliganger.common import HardClippingNotSupportedException
 
 class TestParseCigar(object):
     """Test parse_cigar()."""
@@ -76,7 +76,7 @@ class TestParseCigar(object):
         assert parse_cigar(16, '+', '6M14N5M') == (16, 16, 40, 40)
         # -r003, hard clipping, we don't support it...
         with pytest.raises(HardClippingNotSupportedException,
-                message='SuperDeDuper does not support hard-clipping. cigar: 6H5M, left pos: 29, strand: -'):
+                message='Dupliganger does not support hard-clipping. cigar: 6H5M, left pos: 29, strand: -'):
             parse_cigar(29, '-', '6H5M') == (16, 16, 40, 40)
         # -r001/2
         assert parse_cigar(37, '-', '9M') == (45, 45, 37, 37)

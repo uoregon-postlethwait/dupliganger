@@ -2,7 +2,7 @@
 
 ## setup autodoc
 #echo ; echo '--> Setting up autodoc...'
-#sphinx-apidoc -f -o docs/source superdeduper
+#sphinx-apidoc -f -o docs/source dupliganger
 
 ## Build docs
 #echo ; echo '--> Building docs...'

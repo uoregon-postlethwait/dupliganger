@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,12 +13,12 @@
 """Remove adapters.  This is simply a 'Cutadapt' wrapper.
 
 Usage:
-    superdeduper remove-adapter [options] <input.fastq>
-    superdeduper remove-adapter [options] <in1.fastq> <in2.fastq>
+    dupliganger remove-adapter [options] <input.fastq>
+    dupliganger remove-adapter [options] <in1.fastq> <in2.fastq>
 
 
 Note:
-    SuperDeDuper supports (and autodetects) input FASTQ files that are gzipped.
+    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
 
 Options:
     -h, --help
@@ -45,10 +45,10 @@ from __future__ import absolute_import, division, print_function
 # NOTE: Do *not* do the following:
 # from builtins import str, chr, object
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
-from superdeduper.common import (pgopen, tmpf_start, tmpf_finish,
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
+from dupliganger.common import (pgopen, tmpf_start, tmpf_finish,
         filename_in_to_out_fqgz, pe_log_filename, se_log_filename,
         args_to_out_dir)
 

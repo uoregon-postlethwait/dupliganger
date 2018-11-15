@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -12,15 +12,15 @@
 #
 # Written by Jason Sydes
 
-"""SuperDeDuper
+"""Dupliganger
 
 A reference-based, UMI-aware, 5'-trimming-aware PCR duplicate removal pipeline.
 
-Usage: superdeduper [options] <command> [<args>...]
+Usage: dupliganger [options] <command> [<args>...]
 
 
-SuperDeDuper is a pipeline.  Each stage of the pipeline is run by passing a
-'command' to SuperDeDuper.  The commands / pipeline-steps (in order) are as
+Dupliganger is a pipeline.  Each stage of the pipeline is run by passing a
+'command' to Dupliganger.  The commands / pipeline-steps (in order) are as
 follows:
 
    remove-umi       1. Annotate read names with UMIs (clip inline UMIs if needed).
@@ -30,8 +30,8 @@ follows:
    align            5. Align reads to a reference genome assembly. -- NOT YET IMPLEMENTED
    dedup            6. Use the alignment to remove PCR duplicates.
 
-While generally used only by the developers of SuperDeDuper, the 'dedup'
-command is comprised of the following SuperDeDuper commands run in the
+While generally used only by the developers of Dupliganger, the 'dedup'
+command is comprised of the following Dupliganger commands run in the
 following order:
 
     build-read-db       1. Build a database of aligned reads.
@@ -43,9 +43,9 @@ Options:
     --compress      Compress output.
 
 Note:
-    SuperDeDuper supports (and autodetects) input FASTQ files that are gzipped.
+    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
 
-See 'superdeduper help <command>' for more information on a specific command.
+See 'dupliganger help <command>' for more information on a specific command.
 
 """
 
@@ -59,7 +59,7 @@ import importlib
 
 # version
 try:
-    from superdeduper._version import __version__
+    from dupliganger._version import __version__
 except ImportError:
     from _version import __version__
 __version_info__ = tuple(__version__.split('.'))
@@ -103,25 +103,25 @@ SDD_COMMAND_MODULES = ['remove_umi', 'barcode_split_quality_filter_umi_anno',
 def main():
 
     args = docopt(__doc__,
-          version='superdeduper version {}'.format(__version__),
+          version='dupliganger version {}'.format(__version__),
           options_first=True)
 
     cmd = args['<command>'].replace('-', '_')
 
     if cmd in SDD_COMMAND_MODULES:
-        cmd_module = importlib.import_module("superdeduper.{}".format(cmd))
+        cmd_module = importlib.import_module("dupliganger.{}".format(cmd))
         cmd_module.main()
     elif cmd in ['help', None]:
         argv = args['<args>']
         if argv == []:
-            exit(subprocess.call(['superdeduper', '--help']))
+            exit(subprocess.call(['dupliganger', '--help']))
         elif argv[0].replace('-', '_') in SDD_COMMAND_MODULES:
-            exit(subprocess.call(['superdeduper', argv[0], '--help']))
+            exit(subprocess.call(['dupliganger', argv[0], '--help']))
         else:
-            exit("{} is not a superdeduper command. See 'superdeduper help'.".format(
+            exit("{} is not a dupliganger command. See 'dupliganger help'.".format(
                 argv[0]))
     else:
-        exit("{} is not a superdeduper command. See 'superdeduper help'.".format(args['<command>']))
+        exit("{} is not a dupliganger command. See 'dupliganger help'.".format(args['<command>']))
 
 
 if __name__ == "__main__":

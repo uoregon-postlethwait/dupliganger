@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
 """Remove PCR duplicates from an alignment file (SAM format).
 
 Usage:
-    superdeduper dedup [options] <alignment-file>
+    dupliganger dedup [options] <alignment-file>
 
 
 Output (subject to change):
@@ -59,7 +59,7 @@ Options when UMIs are known a priori (e.g. --kit=Bioo):
 
 Output Options:
 
-    --no-write-dedupped-sam  Do not write the default output of superdeduper
+    --no-write-dedupped-sam  Do not write the default output of dupliganger
                              (which is a SAM file with PCR duplicates removed).
                              See also --write-flagged-sam.
     --write-flagged-sam      Write out a SAM file with PCR duplicates included
@@ -72,7 +72,7 @@ Output Options:
                                and UMIs.
     --no-write-sam-headers   Do not write SAM headers.
 
-    --unannotate-read-name   Remove superdeduper read-name annotations from
+    --unannotate-read-name   Remove dupliganger read-name annotations from
                              final output.  NOT IMPLEMENTED.
 
 Debug Options:
@@ -109,22 +109,22 @@ from future.utils import iteritems, itervalues
 # For range as iterator in py23
 from builtins import range
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
-from superdeduper.common import (setup_report_db, args_to_out_dir, sambamopen,
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
+from dupliganger.common import (setup_report_db, args_to_out_dir, sambamopen,
         filename_in_to_out_sambam, tmpf_start, tmpf_finish, memory_info)
-from superdeduper.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
+from dupliganger.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
         SimpleBucketLmdb, SimpleObjectDbDict, SimpleObjectDbLmdb)
-from superdeduper.sam import (Read, ReadGroup, to_location_key_with_5p_trimming)
-from superdeduper.build_read_and_loc_dbs import write_to_read_and_location_dbs
+from dupliganger.sam import (Read, ReadGroup, to_location_key_with_5p_trimming)
+from dupliganger.build_read_and_loc_dbs import write_to_read_and_location_dbs
 
 # debug
-from superdeduper.db import LocationBucketDb
+from dupliganger.db import LocationBucketDb
 
 # version
 try:
-    from superdeduper._version import __version__
+    from dupliganger._version import __version__
 except ImportError:
     from _version import __version__
 
@@ -339,7 +339,7 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
           per umi-pair).
         * Identifies ReadGroups which have one or more errors in their UMIs,
           and writes those to the umi_error_db (eventually these are used to
-          write out superdeduper SAM TAGs, just for reads with UMI errors).
+          write out dupliganger SAM TAGs, just for reads with UMI errors).
         * Optionally conservatively corrects UMIs with errors (1nt away from
           exactly one known UMI) (Actuall, not implemented at this time!)
         * Updates report_db for several metrics (what catherine wanted, and
@@ -363,12 +363,12 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
         [[str]]: A list of lists of ReadGroup ids.  Each inner list of
             ReadGroup ids constitutes a DupGroup.
 
-    Superdeduper SAM TAGS
+    Dupliganger SAM TAGS
 
-        'sam_tags' is a tab separated list of superdeduper-defined SAM TAGs. It's
+        'sam_tags' is a tab separated list of dupliganger-defined SAM TAGs. It's
         in flux right now.  Here's the current specification.
 
-        Superdeduper SAM file TAGs specification:
+        Dupliganger SAM file TAGs specification:
 
             NOTE! SUBJECT TO CHANGE!!!
 
@@ -407,7 +407,7 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
         len_potential_umis1 = len(potential_umis1)
         len_potential_umis2 = len(potential_umis2)
 
-        ## Add superdeduper SAM TAGs and optionally correct UMIs.
+        ## Add dupliganger SAM TAGs and optionally correct UMIs.
         if dist1 >= 1 or dist2 >= 1:
             # Found UMI error!
 
@@ -718,7 +718,7 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
         # Safe to write @PG line now.
         if write_sam_headers:
             pg_line = '@PG\tID:{}\tPN:{}\tVN:v{}\tCL:{}\n'.format(
-                    'superdeduper', 'superdeduper', __version__,
+                    'dupliganger', 'dupliganger', __version__,
                     ' '.join(sys.argv))
             f_dedupped_sam.write(pg_line)
             f_flagged_sam.write(pg_line)
@@ -762,7 +762,7 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
 
             ## Have a group of alignment lines with same QNAME, write to files.
 
-            # First, add superdeduper SAM TAGs if its in the umi_error_db
+            # First, add dupliganger SAM TAGs if its in the umi_error_db
             if prev_qname in umi_error_db:
                 # Error in UMI, add sdd-specific umi error tags.
                 new_aln_lines = []
@@ -876,7 +876,7 @@ def run(kit, store, outdir, input_file, paired, build_read_and_loc_dbs,
     ## Set the random seed (if not set by user).
     if sys.version_info[0:2] in ((3,0), (3,1)):
         print("WARNING: You are using python v{}.{}, which has a random number "
-                "generator which is not stable between runs.  Superdeduper "
+                "generator which is not stable between runs.  Dupliganger "
                 "output will not be the same between runs.  To fix this, switch "
                 "to python version 2.7 or version >= 3.2.".format(
                     sys.version_info[0], sys.version_info[1]))

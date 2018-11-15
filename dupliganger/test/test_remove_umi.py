@@ -1,6 +1,6 @@
 # Copyright (C) 2016 Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,11 +21,11 @@ from __future__ import division
 from future import standard_library
 standard_library.install_aliases()
 
-# SuperDeDuper imports
-from superdeduper.remove_umi import __doc__
-from superdeduper.remove_umi import run, parse_args
+# Dupliganger imports
+from dupliganger.remove_umi import __doc__
+from dupliganger.remove_umi import run, parse_args
 
-# SuperDeDuper test library imports
+# Dupliganger test library imports
 from common import (fix_paths, test_outdir, to_eout_filename, BASE_OUTFILE_DIR,
         BASE_FILES_DIR)
 
@@ -42,10 +42,10 @@ import os
 # e.g. 'test_remove_umi' -> 'remove_umi'
 COMMAND_BEING_TESTED = __name__[5:]
 
-# e.g. 'superdeduper/test/files/last_run/remove_umi'
+# e.g. 'dupliganger/test/files/last_run/remove_umi'
 OUTFILE_DIR = os.path.join(BASE_OUTFILE_DIR, COMMAND_BEING_TESTED)
 
-# e.g. 'superdeduper/test/files/remove_umi/in'
+# e.g. 'dupliganger/test/files/remove_umi/in'
 INFILE_DIR = os.path.join(BASE_FILES_DIR, COMMAND_BEING_TESTED, 'in')
 
 # Taken from the docstring of remove-umi
@@ -73,7 +73,7 @@ def commands(request):
     fixture to a given test, that test will be run once for each param in
     params.
 
-    In this fixture, we are passing commandline strings to superdeduper
+    In this fixture, we are passing commandline strings to dupliganger
     remove-umi.
 
     See also "fix_paths()", which converts the simple filenames above to
@@ -98,14 +98,14 @@ class TestRemoveUmi(object):
             test_outdir (a fixture): This is the output directory into which
                 all output files are placed.
             commands (a parameterized fixture): This boils down to actual
-                command line arguments given to superdeduper.
+                command line arguments given to dupliganger.
         """
 
         # Get the arguments passed
         args = docopt(__doc__, help=False, argv=commands.split())
         # Fix input file path(s) and outdir path (prepend INFILE_DIR and OUTFILE_DIR)
         args = fix_paths(args, INFILE_DIR, OUTFILE_DIR, COMMAND_FILE_PARAMS)
-        # Run superdeduper command!
+        # Run dupliganger command!
         out_files = run(*parse_args(args))
 
         for fout in out_files:

@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,7 +26,7 @@ from __future__ import division
 ################
 
 # The configuration file
-DEFAULT_SUPERDEDUPER_CONFIG_FILE =                    "superdeduper.config"
+DEFAULT_DUPLIGANGER_CONFIG_FILE =                    "dupliganger.config"
 
 #################
 ### Constants ###
@@ -54,7 +54,7 @@ UMIS_BIOO = ['AACGCCAT', 'AAGGTACG', 'AATTCCGG', 'ACACAGAG', 'ACACTCAG',
         'TGAGAGTG', 'TGAGTGAG', 'TGCTTGGA', 'TGGAGTAG', 'TGTGTGTG', 'TTCGCCTA',
         'TTCGTTCG']
 
-# Superdeduper defined SAM TAGs
+# Dupliganger defined SAM TAGs
 SAM_TAG_READ1_HAMMING_DIST_UMI =                                    'd1:i:'
 SAM_TAG_READ2_HAMMING_DIST_UMI =                                    'd2:i:'
 SAM_TAG_READ1_NUM_CLOSEST_UMIS =                                    'n1:i:'
@@ -157,11 +157,11 @@ TMP_FILE_NAME_RANDOM_STR_SIZE =                                           6
 RANDOM_SEED =                                                'Little Ashes'
 
 
-# SuperDeDuper log filename
-LOG_FILENAME =                                           'superdeduper.log'
+# Dupliganger log filename
+LOG_FILENAME =                                           'dupliganger.log'
 # Overall log level
 LOG_LEVEL =                                                         'DEBUG'
-# Log level for superdeduper.log
+# Log level for dupliganger.log
 LOG_LEVEL_FOR_FILE =                                                 'INFO'
 # Logging configuration dict
 LOGGING = {

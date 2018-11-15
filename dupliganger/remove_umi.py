@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,17 +13,17 @@
 """Annotates read names with UMIs and clips inline UMIs if needed.
 
 Usage:
-    superdeduper remove-umi [options] <input.fastq>
-    superdeduper remove-umi [options] <in1.fastq> <in2.fastq>
-    superdeduper remove-umi [options] <input.bam>
+    dupliganger remove-umi [options] <input.fastq>
+    dupliganger remove-umi [options] <in1.fastq> <in2.fastq>
+    dupliganger remove-umi [options] <input.bam>
 
 
 Note:
-    SuperDeDuper supports (and autodetects) input FASTQ files that are gzipped.
+    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
 
 Note:
     If passing a paired-end BAM file, it needs to be sorted by read name
-    (if not sorted, superdeduper will exit out when it detects mismatching
+    (if not sorted, dupliganger will exit out when it detects mismatching
     adjacent records).
 
 Options:
@@ -52,12 +52,12 @@ from __future__ import division
 from builtins import range
 
 # version
-from superdeduper._version import __version__
+from dupliganger._version import __version__
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
-from superdeduper.common import (pgopen, bamopen, gzwrite, pigzwrite,
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
+from dupliganger.common import (pgopen, bamopen, gzwrite, pigzwrite,
         tmpf_start, tmpf_finish, is_gzipped, is_bam, is_paired_bam,
         filename_in_to_out_fqgz, filename_in_bam_to_out_fqgz, args_to_out_dir)
 
@@ -346,8 +346,8 @@ def parse_args(args):
         args['<input.fastq>'] = os.path.expanduser(args['<input.fastq>'])
 
         # Note: If you write the following for docopt:
-        #   superdeduper remove-umi [options] <input.fastq>
-        #   superdeduper remove-umi [options] <input.bam>
+        #   dupliganger remove-umi [options] <input.fastq>
+        #   dupliganger remove-umi [options] <input.bam>
         # then it will always populate <input.fastq> and never populate
         # <input.bam>, hence the somewhat confusing names going on down
         # below...

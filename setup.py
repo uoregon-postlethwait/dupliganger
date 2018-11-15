@@ -21,14 +21,14 @@ if sys.version_info[0] == 2:
             'whichcraft']
 
 setup(
-    name='superdeduper',
+    name='dupliganger',
     version = open("VERSION").readline().rstrip(),
 
     description='An application to quantify and annotate miRNA expression.',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/uoregon-postlethwait/superdeduper',
+    url='https://github.com/uoregon-postlethwait/dupliganger',
 
     # Author details
     author='Jason Sydes',
@@ -37,7 +37,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
 
-        # Who SuperDeDuper is intended for
+        # Who Dupligänger is intended for
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
 
@@ -53,7 +53,7 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     # packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    packages=['superdeduper'],
+    packages=['dupliganger'],
 
     # List run-time dependencies here. These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's
@@ -91,8 +91,8 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'superdeduper=superdeduper.command_line:main_wrapper',
-            'superdeduper_other_tool=superdeduper.other_tool:command_line',
+            'dupliganger=dupliganger.command_line:main_wrapper',
+            'dupliganger_other_tool=dupliganger.other_tool:command_line',
         ],
     },
 )

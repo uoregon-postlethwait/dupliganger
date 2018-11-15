@@ -1,6 +1,6 @@
 # Copyright (C) 2016 Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,7 +24,7 @@ from __future__ import absolute_import, division, print_function
 # And importing that future 'object' has a bug that screws up __slots__ in
 # py2 (causes different behavior than in py3).
 
-# SuperDeDuper imports
+# Dupliganger imports
 
 ## Other imports
 
@@ -39,8 +39,8 @@ import shutil
 LAST_RUN_DIR            = 'last_run'
 IN_DIR                  = 'in'
 EXPECTED_OUT_DIR        = 'eout'
-BASE_FILES_DIR          = 'superdeduper/test/files'
-                          # e.g. 'superdeduper/test/files/last_run')
+BASE_FILES_DIR          = 'dupliganger/test/files'
+                          # e.g. 'dupliganger/test/files/last_run')
 BASE_OUTFILE_DIR        = os.path.join(BASE_FILES_DIR, LAST_RUN_DIR)
 
 
@@ -75,7 +75,7 @@ def test_outdir(request):
     yield _test_outdir
 
     # Remove the directory
-    if not os.environ.get("SUPERDEDUPER_KEEP_TEST_DIRS"):
+    if not os.environ.get("DUPLIGANGER_KEEP_TEST_DIRS"):
         shutil.rmtree(_test_outdir, True)
 
 def to_eout_filename(fout_filename, python_version=None):
@@ -165,18 +165,18 @@ def fix_paths(args, base_in, base_out, file_params):
             '<input.fastq>': None,
         ... }
         args after = { ...
-            '-o': 'superdeduper/test/files/last_run/remove_adapter',
-            '<in1.fastq>': 'superdeduper/test/files/remove_adapter/in/A_R1.fq',
-            '<in2.fastq>': 'superdeduper/test/files/remove_adapter/in/A_R2.fq',
+            '-o': 'dupliganger/test/files/last_run/remove_adapter',
+            '<in1.fastq>': 'dupliganger/test/files/remove_adapter/in/A_R1.fq',
+            '<in2.fastq>': 'dupliganger/test/files/remove_adapter/in/A_R2.fq',
             '<input.fastq>': None,
         ... }
 
     Args:
         args (dict): docopt generated args dictionary.
         base_in (str): Directory where the input files are stored.
-            e.g. 'superdeduper/test/files/remove_adapter/in'
+            e.g. 'dupliganger/test/files/remove_adapter/in'
         base_out (str): Directory where the output files are placed.
-            e.g. 'superdeduper/test/files/last_run/remove_adapter/'
+            e.g. 'dupliganger/test/files/last_run/remove_adapter/'
         file_params ([str]): e.g. ['<input.fastq>' '<in1.fastq>', '<in2.fastq>']
 
     Returns:

@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,12 +28,12 @@ from __future__ import absolute_import, division, print_function
 # For iterating over dicts in py23
 from future.utils import iteritems
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
 
 ### DEBUGGING
-from superdeduper.sam import (to_location_key_with_5p_trimming)
+from dupliganger.sam import (to_location_key_with_5p_trimming)
 
 ## Other imports
 

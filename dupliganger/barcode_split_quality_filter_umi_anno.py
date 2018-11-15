@@ -1,6 +1,6 @@
 # Copyright (C) 2016, 2017  Jason Sydes and Peter Batzel
 #
-# This file is part of SuperDeduper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,8 +14,8 @@
 """Splits raw sequencing FASTQs by barcode, quality filters, and annotated UMIs.
 
 Usage:
-    superdeduper barcode-split-quality-filter-umi-anno [options] <barcode_file> <in.fq> <in.barcode.fq> <in.umi.fq>
-    superdeduper barcode-split-quality-filter-umi-anno [options] <barcode_file> <in.R1.fq> <in.R2.fq> <in.barcode.fq> <in.umi.fq>
+    dupliganger barcode-split-quality-filter-umi-anno [options] <barcode_file> <in.fq> <in.barcode.fq> <in.umi.fq>
+    dupliganger barcode-split-quality-filter-umi-anno [options] <barcode_file> <in.R1.fq> <in.R2.fq> <in.barcode.fq> <in.umi.fq>
 
 Input:
     This utility works on FASTQ files produced by Illumina's bcl2fastq2.  It
@@ -46,14 +46,14 @@ UMI quality and quailty filtering:
     If an UMI has an 'N' in its sequence, this utility will reject it and write
     it to the rejects files.
 
-    Additionally, by default, SuperDeduper quality filters out any read that
+    Additionally, by default, Dupliganger quality filters out any read that
     has an average quality score less than 30 across a window size of 1. You
     can change those parameters with -w and -q respectively.  Alternatively,
     you can disable UMI quality filtering altogether by setting either -w or -q
     to '0'.
 
 Note:
-    SuperDeduper supports (and autodetects) input FASTQ files that are gzipped.
+    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
 
 Options:
     -h, --help
@@ -88,12 +88,12 @@ from __future__ import division
 from builtins import range
 
 # version
-from superdeduper._version import __version__
+from dupliganger._version import __version__
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
-from superdeduper.common import (args_to_out_dir, pgopen, is_gzipped, gzwrite,
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
+from dupliganger.common import (args_to_out_dir, pgopen, is_gzipped, gzwrite,
         tmpf_start, tmpf_finish, tmpf_open, filename_in_to_out_fqgz)
 
 ## Other imports

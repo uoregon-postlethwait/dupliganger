@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,9 +20,9 @@ from __future__ import absolute_import, division, print_function
 # And importing that future 'object' has a bug that screws up __slots__ in
 # py2 (causes different behavior than in py3).
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
 
 # Other imports
 
@@ -100,7 +100,7 @@ def parse_cigar(left, strand, cigar):
     for c in cigar:
         if c in 'H':
             raise HardClippingNotSupportedException(
-                    "SuperDeDuper does not support hard-clipping. "
+                    "Dupliganger does not support hard-clipping. "
                     "cigar: {}, left pos: {}, strand: {}".format(cigar, left,
                         strand))
         elif c in 'MIDNSP=X':

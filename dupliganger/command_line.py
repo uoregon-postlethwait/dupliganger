@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper.
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,16 +32,16 @@ def main_wrapper():
 
     # Check python version first.
     if sys.version_info < VERSION_PYTHON_MINIMUM:
-        print("SuperDeDuper requires Python {0} or later.  You are running {1}.".format(
+        print("Dupliganger requires Python {0} or later.  You are running {1}.".format(
             '.'.join([str(i) for i in VERSION_PYTHON_MINIMUM]),
             '.'.join([str(i) for i in sys.version_info[0:3]])))
         sys.exit(1)
 
-    # Now you can safely do SuperDeDuper imports
-    import superdeduper.superdeduper
+    # Now you can safely do Dupliganger imports
+    import dupliganger.dupliganger
 
     # Go
-    superdeduper.superdeduper.main()
+    dupliganger.dupliganger.main()
 
 
 # vim: softtabstop=4:shiftwidth=4:expandtab

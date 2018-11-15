@@ -1,25 +1,25 @@
-****************
-*SuperDeDuper*
-****************
+Dupligänger
+===========
 
-Description of *SuperDeDuper* goes here.
+Description of *Dupligänger* goes here.
 
 Documentation
 =============
 
-For further information on *SuperDeDuper*, please see the full documentation at
-https://superdeduper.readthedocs.org.
+For further information on *Dupligänger*, please see the full documentation at
+https://dupliganger.readthedocs.org.
 
 Authors
 =======
 
 * Jason Sydes - Conceptual Design, Software Engineering, and Algorithm Design
+* Peter Batzel - Conceptual Design and Algorithm Design
 * John H. Postlethwait - Project Advisor
 
 Funding
 =======
 
-*SuperDeDuper* has been funded by the following grants:
+*Dupligänger* has been funded by the following grants:
 
 * Grant1
 * Grant2

@@ -1,6 +1,6 @@
 # Copyright (C) 2016, 2017  Jason Sydes and Peter Batzel
 #
-# This file is part of SuperDeduper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,9 +22,9 @@ class ExecutionException(Exception):
 class ControlFlowException(Exception):
     """Something went wrong with control flow logic."""
 class CannotContinueException(Exception):
-    """SuperDeDuper has encountered a situation from which it cannot continue."""
+    """Dupliganger has encountered a situation from which it cannot continue."""
 class PrerequisitesException(Exception):
-    """SuperDeDuper is missing prerequisites (e.g. missing gsnap)."""
+    """Dupliganger is missing prerequisites (e.g. missing gsnap)."""
 class ArgumentException(Exception):
     """Problem with command line arguments."""
 class ParseException(Exception):

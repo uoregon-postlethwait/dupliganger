@@ -1,6 +1,6 @@
 # Copyright (C) 2014, 2015  Jason Sydes
 #
-# This file is part of SuperDeDuper
+# This file is part of Dupliganger
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,7 +20,7 @@ You probably want to run the 'dedup' command instead.
 
 
 Usage:
-    superdeduper build-read-and-loc-dbs [options] <alignment-file>
+    dupliganger build-read-and-loc-dbs [options] <alignment-file>
 
 
 Options:
@@ -53,20 +53,20 @@ from __future__ import absolute_import, division, print_function
 from builtins import ascii
 
 # version
-from superdeduper._version import __version__
+from dupliganger._version import __version__
 
-# SuperDeDuper imports
-from superdeduper.constants import *
-from superdeduper.exceptions import *
-from superdeduper.common import (setup_report_db, sambamopen, args_to_out_dir,
+# Dupliganger imports
+from dupliganger.constants import *
+from dupliganger.exceptions import *
+from dupliganger.common import (setup_report_db, sambamopen, args_to_out_dir,
         memory_info)
-from superdeduper.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
+from dupliganger.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
         SimpleBucketLmdb, LocationBucketDb, SimpleObjectDbDict,
         SimpleObjectDbLmdb)
-from superdeduper.sam import (Read, ReadGroup, to_location_key_with_5p_trimming)
+from dupliganger.sam import (Read, ReadGroup, to_location_key_with_5p_trimming)
 
 # debug
-from superdeduper.db import DebugMultipleLocationBucketDbs
+from dupliganger.db import DebugMultipleLocationBucketDbs
 
 ## Other imports
 from docopt import docopt
