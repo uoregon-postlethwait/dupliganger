@@ -96,9 +96,9 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/SuperDeDuper.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/Dupliganger.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/SuperDeDuper.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/Dupliganger.qhc"
 
 .PHONY: applehelp
 applehelp:
@@ -115,8 +115,8 @@ devhelp:
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/SuperDeDuper"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/SuperDeDuper"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/Dupliganger"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/Dupliganger"
 	@echo "# devhelp"
 
 .PHONY: epub
