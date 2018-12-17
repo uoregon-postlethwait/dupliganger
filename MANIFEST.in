@@ -1,6 +1,7 @@
 # See https://docs.python.org/3/distutils/commandref.html
 
 # include the basics
+include LICENSE.txt
 include VERSION
 include *.rst
 
