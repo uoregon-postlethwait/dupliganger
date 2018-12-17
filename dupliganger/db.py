@@ -1,6 +1,6 @@
-# Copyright (C) 2014, 2015  Jason Sydes
+# Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger
+# This file is part of Dupliganger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -9,7 +9,7 @@
 # You should have received a copy of the License with this program.
 #
 # Written by Jason Sydes
-
+# Conceptual Design by Peter Batzel and Jason Sydes
 
 ###############
 ### Imports ###

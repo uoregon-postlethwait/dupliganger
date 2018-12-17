@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2014, 2015  Jason Sydes
+# Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
 # This file is part of Dupliganger.
 #
@@ -10,7 +10,8 @@
 #
 # You should have received a copy of the License with this program.
 #
-# Written by Jason Sydes.
+# Written by Jason Sydes
+# Conceptual Design by Peter Batzel and Jason Sydes
 
 # This file allows you to run dupliganger (for development purposes) like so:
 #   git clone ...dupliganger
