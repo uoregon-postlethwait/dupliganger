@@ -22,7 +22,7 @@ if sys.version_info[0] == 2:
 
 setup(
     name='dupliganger',
-    version = open("VERSION").readline().rstrip(),
+    version = '0.89',
 
     description="A reference-based, UMI-aware, 5ʹ-trimming-aware PCR duplicate removal pipeline.",
     long_description=long_description,

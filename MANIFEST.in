@@ -1,3 +1,17 @@
+# See https://docs.python.org/3/distutils/commandref.html
+
+# include the basics
 include VERSION
+include README.rst
 include DESCRIPTION.rst
 include LICENSE.txt
+
+# include all files under test/
+graft dupliganger/test
+
+# exclude all .pyc and .pyo files
+global-exclude *.py[co]
+# exclude __pycache__
+global-exclude __pycache__
+# Exclude mac stuff
+global-exclude .DS_Store
