@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
-from codecs import open  # To use a consistent encoding
 from os import path
+from codecs import open  # To use a consistent encoding
 import sys
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 # List of required packages for python 2 and 3.
@@ -24,15 +24,15 @@ setup(
     name='dupliganger',
     version = open("VERSION").readline().rstrip(),
 
-    description='An application to quantify and annotate miRNA expression.',
+    description="A reference-based, UMI-aware, 5ʹ-trimming-aware PCR duplicate removal pipeline.",
     long_description=long_description,
 
-    # The project's main homepage.
+    # Dupligänger's homepage.
     url='https://github.com/uoregon-postlethwait/dupliganger',
 
     # Author details
-    author='Jason Sydes',
-    author_email='sydes@uoregon.edu',
+    author='Postlethwait Lab, University of Oregon',
+    author_email='postlethwait.lab@gmail.com',
 
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -41,59 +41,44 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
 
-        # License (must match license field above)
+        # License
         'License :: Free for non-commercial use',
 
+        # Python versions supported.
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 
     keywords='bioinformatics',
 
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages().
-    # packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
+    # Packages provided.
     packages=['dupliganger'],
 
-    # List run-time dependencies here. These will be installed by pip when your
-    # project is installed. For an analysis of "install_requires" vs pip's
-    # requirements files see:
-    # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
+    # Required packages.
     install_requires=install_requires,
 
-    # List additional groups of dependencies here (e.g. development dependencies).
-    # You can install these using the following syntax, for example:
-    # $ pip install -e .[dev,test]
-    #extras_require = {
-    #    'dev': ['check-manifest'],
-    #    'test': ['coverage'],
-    #},
-
-    # If there are data files included in your packages that need to be
-    # installed, specify them here.  If using Python 2.6 or less, then these
-    # have to be included in MANIFEST.in as well.
-    #package_data={
-    #    'sample': ['package_data.dat'],
-    #},
-
-    # Although 'package_data' is the preferred approach, in some case you may
-    # need to place data files outside of your packages.
-    # see http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files
-    # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    # data_files=[('my_data', ['data/data_file'])],
-    #data_files = [("", ["LICENSE.txt", "DESCRIPTION.rst"])],
+    # Require Python 2.7 or any versions of Python 3 starting with 3.4:
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
 
     # Reference the License
     license = 'LICENSE.txt',
 
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
+    # The dupliganger command line tool.
     entry_points={
         'console_scripts': [
             'dupliganger=dupliganger.command_line:main_wrapper',
-            'dupliganger_other_tool=dupliganger.other_tool:command_line',
         ],
+    },
+
+    # URLs
+    project_urls={
+        'Source': 'https://github.com/uoregon-postlethwait/dupliganger',
+        'Bug Reports': 'https://github.com/uoregon-postlethwait/dupliganger/issues',
     },
 )
 
