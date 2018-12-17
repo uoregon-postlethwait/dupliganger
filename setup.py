@@ -55,6 +55,7 @@ setup(
     ],
 
     keywords='bioinformatics',
+    zip_safe=True,
 
     # Packages provided.
     packages=['dupliganger'],

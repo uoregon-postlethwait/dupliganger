@@ -3,7 +3,6 @@
 # include the basics
 include VERSION
 include README.rst
-include DESCRIPTION.rst
 include LICENSE.txt
 
 # include all files under test/
