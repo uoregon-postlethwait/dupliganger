@@ -3,6 +3,7 @@
 # include the basics
 include LICENSE.txt
 include VERSION
+include requirements.txt
 include *.rst
 
 # include all files under test/
