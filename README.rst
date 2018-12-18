@@ -1,7 +1,9 @@
 Dupligänger
 ===========
 
-Description of *Dupligänger* goes here.
+Dupligänger is a reference-based, UMI-aware, 5'-trimming-aware PCR duplicate
+removal pipeline.
+
 
 Documentation
 =============
