@@ -21,6 +21,7 @@ Funding
 
 *Dupligänger* has been funded by the following grants:
 
-* Grant1
-* Grant2
-* Grant3
+* NIH R01 OD011116 - Resources for Teleost Gene Duplicates and Human Disease
+* NIH R24 OD011199 - Advancing the Scientific Potential of Transcriptomics in Aquatic Models
+* NIH R24 OD018555 - Development of Aquatic Model Resources for Therapeutic Screens
+* NSF PLR-1543383 - Antarctic Fish and MicroRNA Control of Development and Physiology 
