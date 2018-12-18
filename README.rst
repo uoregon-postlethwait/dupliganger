@@ -14,8 +14,8 @@ https://dupliganger.readthedocs.org.
 Authors
 =======
 
-* Jason Sydes - Conceptual Design, Software Engineering, and Algorithm Design
-* Peter Batzel - Conceptual Design and Algorithm Design
+* Jason Sydes - Conceptual Design and Software Engineering
+* Peter Batzel - Conceptual Design
 * John H. Postlethwait - Project Advisor
 
 Funding
