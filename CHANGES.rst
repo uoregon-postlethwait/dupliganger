@@ -6,9 +6,6 @@ Changelog for Dupligänger
 
 - Small update to README to test zest.
 
-- Nothing changed yet.
-
-
 0.89 (2018-12-17)
 -----------------
 
