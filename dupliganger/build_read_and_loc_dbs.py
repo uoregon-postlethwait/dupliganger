@@ -54,9 +54,6 @@ from __future__ import absolute_import, division, print_function
 
 from builtins import ascii
 
-# version
-from dupliganger._version import __version__
-
 # Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *

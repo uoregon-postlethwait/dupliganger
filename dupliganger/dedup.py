@@ -124,12 +124,6 @@ from dupliganger.build_read_and_loc_dbs import write_to_read_and_location_dbs
 # debug
 from dupliganger.db import LocationBucketDb
 
-# version
-try:
-    from dupliganger._version import __version__
-except ImportError:
-    from _version import __version__
-
 ## Other imports
 from docopt import docopt
 

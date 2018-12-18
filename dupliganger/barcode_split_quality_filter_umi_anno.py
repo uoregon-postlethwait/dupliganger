@@ -88,9 +88,6 @@ from __future__ import absolute_import
 from __future__ import division
 from builtins import range
 
-# version
-from dupliganger._version import __version__
-
 # Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
