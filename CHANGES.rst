@@ -1,7 +1,7 @@
 Changelog for Dupligänger
 =========================
 
-0.91 (unreleased)
+0.91 (2018-12-17)
 -----------------
 
 - Another small update to README to test zest.
