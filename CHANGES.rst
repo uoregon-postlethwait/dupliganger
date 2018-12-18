@@ -4,8 +4,7 @@ Changelog for Dupligänger
 0.91 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- Another small update to README to test zest.
 
 0.90 (2018-12-17)
 -----------------
