@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -111,7 +111,7 @@ from future.utils import iteritems, itervalues
 # For range as iterator in py23
 from builtins import range
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
 from dupliganger.common import (setup_report_db, args_to_out_dir, sambamopen,
@@ -365,12 +365,12 @@ def process_location_pe_bioo_1nt(report_db, umi_error_db, reject_umi_errors,
         [[str]]: A list of lists of ReadGroup ids.  Each inner list of
             ReadGroup ids constitutes a DupGroup.
 
-    Dupliganger SAM TAGS
+    Dupligänger SAM TAGS
 
         'sam_tags' is a tab separated list of dupliganger-defined SAM TAGs. It's
         in flux right now.  Here's the current specification.
 
-        Dupliganger SAM file TAGs specification:
+        Dupligänger SAM file TAGs specification:
 
             NOTE! SUBJECT TO CHANGE!!!
 
@@ -878,7 +878,7 @@ def run(kit, store, outdir, input_file, paired, build_read_and_loc_dbs,
     ## Set the random seed (if not set by user).
     if sys.version_info[0:2] in ((3,0), (3,1)):
         print("WARNING: You are using python v{}.{}, which has a random number "
-                "generator which is not stable between runs.  Dupliganger "
+                "generator which is not stable between runs.  Dupligänger "
                 "output will not be the same between runs.  To fix this, switch "
                 "to python version 2.7 or version >= 3.2.".format(
                     sys.version_info[0], sys.version_info[1]))

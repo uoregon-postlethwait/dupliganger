@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +21,7 @@ Usage:
 
 
 Note:
-    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
+    Dupligänger supports (and autodetects) input FASTQ files that are gzipped.
 
 Note:
     If passing a paired-end BAM file, it needs to be sorted by read name
@@ -56,7 +56,7 @@ from builtins import range
 # version
 from dupliganger._version import __version__
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
 from dupliganger.common import (pgopen, bamopen, gzwrite, pigzwrite,

@@ -1,6 +1,6 @@
-Dupliganger Software Academic License Agreement               December 17, 2018
+Dupligänger Software Academic License Agreement               December 17, 2018
 
-The Dupliganger software ("Software") has been developed by the contributing
+The Dupligänger software ("Software") has been developed by the contributing
 researchers Jason Sydes and Peter Batzel ("Developers") and made available
 through the University of Oregon ("UO") for your internal, non-profit research
 use.  The Software was developed through support of a variety of funding

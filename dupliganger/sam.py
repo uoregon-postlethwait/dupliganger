@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,7 +22,7 @@ from __future__ import absolute_import, division, print_function
 # And importing that future 'object' has a bug that screws up __slots__ in
 # py2 (causes different behavior than in py3).
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
 
@@ -102,7 +102,7 @@ def parse_cigar(left, strand, cigar):
     for c in cigar:
         if c in 'H':
             raise HardClippingNotSupportedException(
-                    "Dupliganger does not support hard-clipping. "
+                    "Dupligänger does not support hard-clipping. "
                     "cigar: {}, left pos: {}, strand: {}".format(cigar, left,
                         strand))
         elif c in 'MIDNSP=X':

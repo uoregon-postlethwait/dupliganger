@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -78,7 +78,7 @@ class TestParseCigar(object):
         assert parse_cigar(16, '+', '6M14N5M') == (16, 16, 40, 40)
         # -r003, hard clipping, we don't support it...
         with pytest.raises(HardClippingNotSupportedException,
-                message='Dupliganger does not support hard-clipping. cigar: 6H5M, left pos: 29, strand: -'):
+                message='Dupligänger does not support hard-clipping. cigar: 6H5M, left pos: 29, strand: -'):
             parse_cigar(29, '-', '6H5M') == (16, 16, 40, 40)
         # -r001/2
         assert parse_cigar(37, '-', '9M') == (45, 45, 37, 37)

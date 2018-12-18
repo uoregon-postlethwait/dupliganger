@@ -7,8 +7,8 @@ removal pipeline.
 Usage: dupliganger [options] <command> [<args>...]
 
 
-Dupliganger is a pipeline.  Each stage of the pipeline is run by passing a
-'command' to Dupliganger.  The commands / pipeline-steps (in order) are as
+Dupligänger is a pipeline.  Each stage of the pipeline is run by passing a
+'command' to Dupligänger.  The commands / pipeline-steps (in order) are as
 follows:
 
    remove-umi       1. Annotate read names with UMIs (clip inline UMIs if needed).
@@ -18,8 +18,8 @@ follows:
    align            5. Align reads to a reference genome assembly. -- NOT YET IMPLEMENTED
    dedup            6. Use the alignment to remove PCR duplicates.
 
-While generally used only by the developers of Dupliganger, the 'dedup'
-command is comprised of the following Dupliganger commands run in the
+While generally used only by the developers of Dupligänger, the 'dedup'
+command is comprised of the following Dupligänger commands run in the
 following order:
 
     build-read-db       1. Build a database of aligned reads.
@@ -31,7 +31,7 @@ Options:
     --compress      Compress output.
 
 Note:
-    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
+    Dupligänger supports (and autodetects) input FASTQ files that are gzipped.
 
 See 'dupliganger help <command>' for more information on a specific command.
 

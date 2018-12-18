@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,9 +23,9 @@ class ExecutionException(Exception):
 class ControlFlowException(Exception):
     """Something went wrong with control flow logic."""
 class CannotContinueException(Exception):
-    """Dupliganger has encountered a situation from which it cannot continue."""
+    """Dupligänger has encountered a situation from which it cannot continue."""
 class PrerequisitesException(Exception):
-    """Dupliganger is missing prerequisites (e.g. missing gsnap)."""
+    """Dupligänger is missing prerequisites (e.g. missing gsnap)."""
 class ArgumentException(Exception):
     """Problem with command line arguments."""
 class ParseException(Exception):

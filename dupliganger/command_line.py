@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -34,12 +34,12 @@ def main_wrapper():
 
     # Check python version first.
     if sys.version_info < VERSION_PYTHON_MINIMUM:
-        print("Dupliganger requires Python {0} or later.  You are running {1}.".format(
+        print("Dupligänger requires Python {0} or later.  You are running {1}.".format(
             '.'.join([str(i) for i in VERSION_PYTHON_MINIMUM]),
             '.'.join([str(i) for i in sys.version_info[0:3]])))
         sys.exit(1)
 
-    # Now you can safely do Dupliganger imports
+    # Now you can safely do Dupligänger imports
     import dupliganger.dupliganger
 
     # Go

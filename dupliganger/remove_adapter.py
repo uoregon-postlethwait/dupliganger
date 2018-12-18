@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,7 +20,7 @@ Usage:
 
 
 Note:
-    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
+    Dupligänger supports (and autodetects) input FASTQ files that are gzipped.
 
 Options:
     -h, --help
@@ -47,7 +47,7 @@ from __future__ import absolute_import, division, print_function
 # NOTE: Do *not* do the following:
 # from builtins import str, chr, object
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
 from dupliganger.common import (pgopen, tmpf_start, tmpf_finish,

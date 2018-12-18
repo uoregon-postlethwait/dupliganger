@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -56,7 +56,7 @@ UMIS_BIOO = ['AACGCCAT', 'AAGGTACG', 'AATTCCGG', 'ACACAGAG', 'ACACTCAG',
         'TGAGAGTG', 'TGAGTGAG', 'TGCTTGGA', 'TGGAGTAG', 'TGTGTGTG', 'TTCGCCTA',
         'TTCGTTCG']
 
-# Dupliganger defined SAM TAGs
+# Dupligänger defined SAM TAGs
 SAM_TAG_READ1_HAMMING_DIST_UMI =                                    'd1:i:'
 SAM_TAG_READ2_HAMMING_DIST_UMI =                                    'd2:i:'
 SAM_TAG_READ1_NUM_CLOSEST_UMIS =                                    'n1:i:'
@@ -159,7 +159,7 @@ TMP_FILE_NAME_RANDOM_STR_SIZE =                                           6
 RANDOM_SEED =                                                'Little Ashes'
 
 
-# Dupliganger log filename
+# Dupligänger log filename
 LOG_FILENAME =                                           'dupliganger.log'
 # Overall log level
 LOG_LEVEL =                                                         'DEBUG'

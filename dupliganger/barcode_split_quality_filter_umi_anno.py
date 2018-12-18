@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -47,14 +47,14 @@ UMI quality and quailty filtering:
     If an UMI has an 'N' in its sequence, this utility will reject it and write
     it to the rejects files.
 
-    Additionally, by default, Dupliganger quality filters out any read that
+    Additionally, by default, Dupligänger quality filters out any read that
     has an average quality score less than 30 across a window size of 1. You
     can change those parameters with -w and -q respectively.  Alternatively,
     you can disable UMI quality filtering altogether by setting either -w or -q
     to '0'.
 
 Note:
-    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
+    Dupligänger supports (and autodetects) input FASTQ files that are gzipped.
 
 Options:
     -h, --help
@@ -91,7 +91,7 @@ from builtins import range
 # version
 from dupliganger._version import __version__
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
 from dupliganger.common import (args_to_out_dir, pgopen, is_gzipped, gzwrite,

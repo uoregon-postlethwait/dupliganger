@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,11 +25,11 @@ from __future__ import absolute_import, division, print_function
 from future import standard_library
 standard_library.install_aliases()
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.annotate_qtrim import __doc__
 from dupliganger.annotate_qtrim import run, parse_args
 
-# Dupliganger test library imports
+# Dupligänger test library imports
 from common import (fix_paths, test_outdir, to_eout_filename, BASE_OUTFILE_DIR,
         BASE_FILES_DIR)
 

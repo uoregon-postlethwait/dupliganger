@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,7 +24,7 @@ from __future__ import absolute_import, division, print_function
 
 from builtins import range
 
-# Dupliganger imports
+# Dupligänger imports
 try:
     from dupliganger.constants import *
     from dupliganger.exceptions import *
@@ -76,18 +76,18 @@ def some_function(args):
     """A utility function."""
 
 def pmsg(msg):
-    """Dupliganger Message.  Write a message to STDOUT and the
+    """Dupligänger Message.  Write a message to STDOUT and the
     dupliganger.log.
 
     You should *never* use print(), sys.stderr.write() or sys.stdout.write()
-    within Dupliganger (except for the class Progress).  Instead, use this function.
+    within Dupligänger (except for the class Progress).  Instead, use this function.
 
     """
     logging.info(msg)
     print(msg)
 
 def perr(msg):
-    """Dupliganger Error Message.  Same as pmsg(), but it's an error instead
+    """Dupligänger Error Message.  Same as pmsg(), but it's an error instead
     of info."""
 
     logging.error(msg)
@@ -124,7 +124,7 @@ def setup_logging(conf, time_start):
     Does the following:
         - configures the logging
         - adds a "header" line that includes the version and date
-        - adds a line showing how Dupliganger was executed from the command line
+        - adds a line showing how Dupligänger was executed from the command line
         - dumps contents of dupliganger.config and samples_filelist to log
 
     Arguments:
@@ -136,13 +136,13 @@ def setup_logging(conf, time_start):
     logging.config.dictConfig(LOGGING)
 
     # First line of log, version + timedate.
-    left = "Dupliganger! version {}.".format(__version__)
+    left = "Dupligänger! version {}.".format(__version__)
     right_len = 79 - len(left)
     pmsg("{}{:>{}}.".format(
         left, time.strftime('%l:%M:%S %p %Z on %b %d, %Y'), right_len))
     pmsg("")
 
-    # Next, add how Dupliganger was run from the command line (only to the
+    # Next, add how Dupligänger was run from the command line (only to the
     # log).
     args = sys.argv
     args[0] = os.path.basename(sys.argv[0])
@@ -167,8 +167,8 @@ def setup_logging(conf, time_start):
     with open(os.path.expanduser(conf.general.samples_filelist), 'r') as f:
         logging.info(f.read())
 
-    # Finally, add a header line for Dupliganger exection.
-    header = "=== Dupliganger Execution ==="
+    # Finally, add a header line for Dupligänger exection.
+    header = "=== Dupligänger Execution ==="
     logging.info("{:^79}".format(header))
     logging.info("")
 

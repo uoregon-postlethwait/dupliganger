@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +21,7 @@ Usage:
     dupliganger annotate-qtrim [options] <in1.fastq> <in2.fastq>
 
 Note:
-    Dupliganger supports (and autodetects) input FASTQ files that are gzipped.
+    Dupligänger supports (and autodetects) input FASTQ files that are gzipped.
 
 Options:
     -h, --help
@@ -46,7 +46,7 @@ from __future__ import division
 from __future__ import print_function
 from builtins import range
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger.constants import *
 from dupliganger.exceptions import *
 from dupliganger.common import (pgopen, tmpf_start, tmpf_finish,

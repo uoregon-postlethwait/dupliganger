@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
 #
-# This file is part of Dupliganger.
+# This file is part of Dupligänger.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +23,7 @@
 from __future__ import absolute_import
 from __future__ import division
 
-# Dupliganger imports
+# Dupligänger imports
 from dupliganger import dupliganger
 
 def main():
