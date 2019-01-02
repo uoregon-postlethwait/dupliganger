@@ -1,7 +1,7 @@
 Changelog for Dupligänger
 =========================
 
-0.92 (unreleased)
+0.92 (2019-01-02)
 -----------------
 
 - version bump
