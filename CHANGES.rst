@@ -4,8 +4,7 @@ Changelog for Dupligänger
 0.92 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- version bump
 
 0.91 (2018-12-17)
 -----------------
