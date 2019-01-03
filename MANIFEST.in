@@ -5,6 +5,8 @@ include LICENSE.txt
 include VERSION
 include requirements.txt
 include *.rst
+include _version.py
+include dupliganger/_version.py
 
 # include all files under test/
 graft dupliganger/test
