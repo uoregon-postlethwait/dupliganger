@@ -60,10 +60,7 @@ from docopt import docopt
 import importlib
 
 # version
-try:
-    from dupliganger._version import __version__
-except ImportError:
-    from _version import __version__
+from dupliganger import __version__
 __version_info__ = tuple(__version__.split('.'))
 
 # Other imports

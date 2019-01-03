@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 from os import path
 from codecs import open  # To use a consistent encoding
 import sys
+import versioneer
 
 here = path.abspath(path.dirname(__file__))
 
@@ -23,7 +24,9 @@ if sys.version_info[0] == 2:
 
 setup(
     name='dupliganger',
-    version='0.96',
+
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
 
     description="A reference-based, UMI-aware, 5ʹ-trimming-aware PCR duplicate removal pipeline.",
     long_description=long_description,
