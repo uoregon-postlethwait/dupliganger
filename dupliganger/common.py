@@ -32,6 +32,10 @@ except ImportError:
     from constants import *
     from exceptions import *
 
+# version
+from dupliganger import __version__
+__version_info__ = tuple(__version__.split('.'))
+
 # Other imports
 
 import sys

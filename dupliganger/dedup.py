@@ -121,6 +121,10 @@ from dupliganger.db import (ParentDbDict, ParentDbLmdb, SimpleBucketDict,
 from dupliganger.sam import (Read, ReadGroup, to_location_key_with_5p_trimming)
 from dupliganger.build_read_and_loc_dbs import write_to_read_and_location_dbs
 
+# version
+from dupliganger import __version__
+__version_info__ = tuple(__version__.split('.'))
+
 # debug
 from dupliganger.db import LocationBucketDb
 

@@ -43,6 +43,7 @@ following order:
 Options:
     -o OUT_DIR      Place results in directory OUT_DIR.
     --compress      Compress output.
+    --version       Show version.
 
 Note:
     Dupligänger supports (and autodetects) input FASTQ files that are gzipped.
