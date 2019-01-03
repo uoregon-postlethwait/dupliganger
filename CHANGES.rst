@@ -1,11 +1,15 @@
 Changelog for Dupligänger
 =========================
 
+0.94 (unreleased)
+-----------------
+
+- another minor version bump, problems with previous PyPI release
+
 0.93 (2019-01-02)
 -----------------
 
 - minor version bump
-
 
 0.92 (2019-01-02)
 -----------------
