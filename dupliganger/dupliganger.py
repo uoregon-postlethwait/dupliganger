@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 #
-# Copyright (C) 2016, 2017, 2018  Jason Sydes and Peter Batzel
+# Copyright (C) 2016-2019 University of Oregon
 #
 # This file is part of Dupligänger.
 #
