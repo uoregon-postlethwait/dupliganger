@@ -686,8 +686,6 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
         * A umi-error-rejects file. - Reads rejected due to error in UMI.
     """
     ## Write everything except the dup_group_sam_like file.
-    WORKED = 0  #LESLIE TESTING
-    DIDNT_WORK = 0 #LESLIE TESTING
     with parent_db.begin(False) as txn, \
             sambamopen(input_file) as fin, \
             open(dedupped_sam, 'w') as f_dedupped_sam, \
