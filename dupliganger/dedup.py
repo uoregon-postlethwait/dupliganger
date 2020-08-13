@@ -844,9 +844,12 @@ def parse_args(args):
                 " If passing --correct, you must also pass --keep-bad-umis.")
 
     # Which store to use
-    if args['--store'] not in (STORE_OPTION_LMDB, STORE_OPTION_MEMORY):
+    if args['--store'] == None:
+        store = STORE_OPTION_MEMORY
+    elif args['--store'] not in (STORE_OPTION_LMDB, STORE_OPTION_MEMORY):
         raise CannotContinueException("""Store {} is not supported.""".format(args['--store']))
-    store = args['--store']
+    else:
+        store = args['--store']
 
     outdir = args_to_out_dir(args)
 
