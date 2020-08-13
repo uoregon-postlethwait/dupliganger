@@ -763,13 +763,14 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
             ## Have a group of alignment lines with same QNAME, write to files.
 
             # First, add dupliganger SAM TAGs if its in the umi_error_db
+            
             if prev_qname in umi_error_db:
                 # Error in UMI, add sdd-specific umi error tags.
                 new_aln_lines = []
                 for i, line in enumerate(aln_lines):
                     # Update the alignment line with sam tags
-                    line_with_sam_tags = '\t'.join(
-                            (aln_lines[i].rstrip(), umi_error_db[prev_qname][i]))
+                    index_sam_tag = i%2
+                    line_with_sam_tags = '\t'.join((aln_lines[i].rstrip(), umi_error_db[prev_qname][index_sam_tag]))
                     line_with_sam_tags += '\n'
                     new_aln_lines.append(line_with_sam_tags)
                 aln_lines = new_aln_lines
@@ -844,9 +845,12 @@ def parse_args(args):
                 " If passing --correct, you must also pass --keep-bad-umis.")
 
     # Which store to use
-    if args['--store'] not in (STORE_OPTION_LMDB, STORE_OPTION_MEMORY):
+    if args['--store'] == None:
+        store = STORE_OPTION_MEMORY
+    elif args['--store'] not in (STORE_OPTION_LMDB, STORE_OPTION_MEMORY):
         raise CannotContinueException("""Store {} is not supported.""".format(args['--store']))
-    store = args['--store']
+    else:
+        store = args['--store']
 
     outdir = args_to_out_dir(args)
 
