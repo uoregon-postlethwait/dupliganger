@@ -686,6 +686,8 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
         * A umi-error-rejects file. - Reads rejected due to error in UMI.
     """
     ## Write everything except the dup_group_sam_like file.
+    WORKED = 0  #LESLIE TESTING
+    DIDNT_WORK = 0 #LESLIE TESTING
     with parent_db.begin(False) as txn, \
             sambamopen(input_file) as fin, \
             open(dedupped_sam, 'w') as f_dedupped_sam, \
@@ -763,13 +765,14 @@ def write_output_files_pe(parent_db, read_group_db, dup_db, umi_error_db,
             ## Have a group of alignment lines with same QNAME, write to files.
 
             # First, add dupliganger SAM TAGs if its in the umi_error_db
+            
             if prev_qname in umi_error_db:
                 # Error in UMI, add sdd-specific umi error tags.
                 new_aln_lines = []
                 for i, line in enumerate(aln_lines):
                     # Update the alignment line with sam tags
-                    line_with_sam_tags = '\t'.join(
-                            (aln_lines[i].rstrip(), umi_error_db[prev_qname][i]))
+                    index_sam_tag = i%2
+                    line_with_sam_tags = '\t'.join((aln_lines[i].rstrip(), umi_error_db[prev_qname][index_sam_tag]))
                     line_with_sam_tags += '\n'
                     new_aln_lines.append(line_with_sam_tags)
                 aln_lines = new_aln_lines
