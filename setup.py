@@ -62,7 +62,8 @@ setup(
     zip_safe=True,
 
     # Packages provided.
-    packages=['dupliganger'],
+    # packages=['dupliganger'],
+    packages=find_packages(),
 
     # Required packages.
     install_requires=install_requires,
