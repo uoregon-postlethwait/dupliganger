@@ -22,6 +22,7 @@ if sys.version_info[0] == 2:
             # For unix-like "which" tool.
             'whichcraft']
 
+
 setup(
     name='dupliganger',
 
